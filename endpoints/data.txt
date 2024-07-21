@@ -1,0 +1,4 @@
+{
+    django_admin-'usbai.contact_2024':usbai_password_2024
+
+}

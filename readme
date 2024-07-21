@@ -1,0 +1,18 @@
+<div style="display: flex; align-items: center;">
+    <svg width="66" height="24" viewBox="0 0 66 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="66" height="24" rx="12" fill="black"/>
+        <rect x="32" y="16" width="23" height="4" fill="white"/>
+        <rect x="32" y="16" width="23" height="4" fill="white"/>
+        <rect x="32" y="16" width="23" height="4" fill="white"/>
+        <rect x="32" y="16" width="23" height="4" fill="white"/>
+        <rect x="22" y="10" width="23" height="4" fill="white"/>
+        <rect x="22" y="10" width="23" height="4" fill="white"/>
+        <rect x="22" y="10" width="23" height="4" fill="white"/>
+        <rect x="22" y="10" width="23" height="4" fill="white"/>
+        <rect x="9" y="4" width="23" height="4" fill="white"/>
+        <rect x="9" y="4" width="23" height="4" fill="white"/>
+        <rect x="9" y="4" width="23" height="4" fill="white"/>
+        <rect x="9" y="4" width="23" height="4" fill="white"/>
+    </svg>
+    <span style="margin-left: 8px; font-weight: bold; color: black;">Your Title Here</span>
+</div>

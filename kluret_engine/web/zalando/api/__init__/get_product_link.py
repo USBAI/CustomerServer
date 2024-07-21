@@ -1,0 +1,53 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+import os
+
+# Base URL without page number
+base_url = "https://www.zalando.se/kvinna/drdenim-online-shop.gina-tricot-1.happy-socks-online-shop.hummel-1.jack-and-jones.jdy.jlindeberg.kaffe-online-shop.lego.mamalicious.na-kd-online-shop.noisy-may-online-shop.object-online-shop.only-online-shop.pieces-online-shop.selected.skagen-online-shop.tigerofsweden.vero-moda.vila-1.yas-online-shop.zarko.zizzi-online-shop.2nd-day.7-days-active.8848-altitude.Enamel-Copenhagen.aimn.aknvas.andiata.anerkjendt.angulus.arket.arkk-copenhagen.ask-scandinavia.asra.august-berg.avavav.b-copenhagen.b-young.ball.baum-und-pferdgarten.becksoendergaard.bertoni.billi-bi.birgitte-herskind.bisgaard.bite-studios.bjoern-borg.blanche.blendshe-1.bolinder-stockholm.boob-design.brogger.bruun-and-stengade.bruuns-bazaar.btfcph.bubbleroom.busnel.by-garment-makers.by-malene-birger.by-malina.by-second-female.bybiehl.bytimo.calou-stockholm.carin-wester.casall.casual-friday.cellbes-of-sweden.cheapo.chelsea.chiquelle.clean-cut-copenhagen.color-kids.copenhagen.copenhagen-muse.copenhagen-shoes.craft.cras.cream.custommade.dagmar.daily-sports.danefa-kobenhavn.daniel-wellington.danish-endurance.dansk-copenhagen.davida-cashmere.day-birger.day-et.dea-kudibal.deadwood.decadent-copenhagen.dedicated.design-letters.designers-remix.didrikson.dranella.ecco.ecco-leather-goods.efva-attling.envii.esme-studios.estelle-and-thild.eton.face-stockholm.filippa-k.fiveunits.fjaellraeven.foreo.fransa.freequent.gabba.gant.garment-project.gestuz.golden-beards.gosh-copenhagen.gustav.h2o.haglofs.halo.han-kjobenhavn.helly-hansen.henrik-vibskov.hofmann-copenhagen.hollies-stockholm.holzweiler.hope.hosbjerg.houdini.hunkydory.hust-claire.hvisk.icaniwill.icepeak.ichi.ichi-petite.ida-sjoestedt.ida-warg-beauty.iiqual.ilse-jacobsen.indicode-jeans.indiska.inwear.isadora.isbjoern-of-sweden.ivy-copenhagen.ivylee-copenhagen.jane-konig.jascha-stockholm.jbs-of-denmark.joha.julie-sandlau.jumperfabriken.junarose.just-junkies.karen-by-simonsen.karitraa.klaettermusen.kronstadt.laest.larsson-and-jennings.les-deux.levete-room.lexington.libertine-libertine.lilboo.limited-by-name-it.linda-hallberg.lindbergh.lindex.line-of-oslo.lisberg-jewellery.little-liffner.loewengrip.lollys-laundry.love-copenhagen.luhta.lulu-copenhagen.lumene.m-by-m.maanesten.mads-norgaard.mainio.makia.mantle.maria-black.marimekko.marmar-copenhagen.martin-asbjorn.maska.matinique.meraki.mikk-line.mini-rodini.minimum.modstroem.molo.monki.moods-of-norway.mos-mosh.moves.mr-bear-family.msch-copenhagen.muesli-by-green-cotton.munthe.name-it.nellycom.neo-noir.nialaya.nikolaj-storm.nn07.noa-noa.nordahl-jewellery.nordgreen.nordicdots.norr.norrona.norse-projects.notes-du-nord.nudie.nue-denmark.nuemph.nunoo.odd-molly.only-sons.papu.part-two.pavement.peak-performance.pieces-maternity.pilgrim.poc.rains.re-new-copenhagen.reima.resterods.resume.rodebjer.rohnisch.rosemunde.royal-republiq.rukka.saint-tropez.salming.samsoe-and-samsoe.san-babila-milano.sand-copenhagen.sandgaard.sandqvist.sanita.scandinavian-biolabs.selahatin.sence-copenhagen.shoedesign-copenhagen.sif-jakobs-jewellery.simply-copenhagen.sirup-copenhagen.skandinavisk.smafolk.sneaky-steve.snoe-of-sweden.soaked-in-luxury.sofie-schnoor.soft-gallery.solid.something-new.soulland.soyaconcept.stamm.stella-nova.stenstroems.stiksen.still-nordic.stine-goya.stockh-lm.stockh-lm-studio.stronger.stylein.summery-copenhagen.swedemount.swedish-stockings.true-organic-of-sweden.unmade-copenhagen.vagabond.vibe-harslof.viking.weekday.wheat.why7.won-hundred.wood-wood/"
+
+# Number of pages to scrape
+total_pages = 428
+
+# Define the path for the JSON file
+file_path = os.path.join(os.getcwd(), 'product.json')
+
+# Initialize or read existing JSON data
+if os.path.exists(file_path):
+    with open(file_path, 'r') as json_file:
+        try:
+            data = json.load(json_file)
+        except json.JSONDecodeError:
+            data = []
+else:
+    data = []
+
+for page in range(1, total_pages + 1):
+    # Update the URL for each page
+    url = f"{base_url}?p={page}"
+    print(f"Fetching page {page}: {url}")
+
+    try:
+        # Send a GET request to fetch the page content
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Find all the product links
+        for article in soup.find_all('article', {'role': 'link'}):
+            link = article.find('a', href=True)
+            if link:
+                product_url = link['href']
+                if product_url not in data:
+                    data.append(product_url)
+                    
+        # Write the updated data back to the file
+        with open(file_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+            
+    except requests.RequestException as e:
+        print(f"Failed to retrieve page {page}. Error: {e}")
+
+print(f"Product URLs have been saved to {file_path}")
