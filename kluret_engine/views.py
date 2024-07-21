@@ -69,7 +69,8 @@ def zalando(request):
     
     
     # Combine the contents of both JSON files
-    combined_product_details = product_details1 + product_details2 + product_details3 + product_details4 + product_details5  + product_details6 + product_details7 + product_details8
+    combined_product_details = product_details1 + product_details2 + product_details3 + product_details4 + product_details5  + product_details6 
+    # + product_details7 + product_details8
 
     return JsonResponse(combined_product_details, safe=False)
 
