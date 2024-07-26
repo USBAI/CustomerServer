@@ -13,3 +13,7 @@ heroku{
 github{
     'juiekw33osn'
 }
+
+one.com{
+    =ioufiyghijpordhgbjhhijohugwr
+}
