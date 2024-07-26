@@ -53,6 +53,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://usbai.org",
+    'https://www.kluret.se',
     "https://usbai.vercel.app/",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
 ]
@@ -60,6 +61,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://usbai.org",
+    'https://www.kluret.se',
     "https://usbai.vercel.app/",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
 ]
