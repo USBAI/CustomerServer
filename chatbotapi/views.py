@@ -28,7 +28,9 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response (e.g., "Kluret AI search engine is working on it along with ((product name))."). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
+                Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
+
+                Return the response as HTML.
             '''
 
             # Create the completion using GPT-3.5 Turbo
