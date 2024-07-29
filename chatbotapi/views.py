@@ -30,15 +30,7 @@ def chatbot_api(request):
 
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Include the product link in the response using the format {{product link}}. Link the product name to its product link if provided. Do not ask the user about brands or any technical details related to computer programming code.
 
-                Examples:
-                - User: "I am looking for Air Force shoes."
-                  Response: "Great choice! I can help you find Air Force shoes. Could you please provide a price range?"
-                - User: "I want a red dress for 1000kr."
-                  Response: "I found some red dresses within your budget of [[1000kr]]. Here are some options: <a href="#">((Red Dress))</a>."
-                - User: "Show me jackets under 2000kr."
-                  Response: "Sure, I can find jackets under [[2000kr]] for you. Please hold on for a moment while I search for the best options available."
-
-                Return the response as HTML. Ensure to format the product names as clickable links when a product link is provided.
+                Return the response as HTML.
             '''
 
             # Create the completion using GPT-3.5 Turbo
