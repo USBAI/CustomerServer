@@ -32,6 +32,10 @@ def chatbot_api(request):
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
 
                 When you have found a product that matches the user's request, respond with only one product information directly without stating that you are looking for it. Use the following format for the response: "Here is the product I found for you: ((product name)) for [[price]]." Ensure to provide all product details in your response.
+
+                Avoid responses similar to this example: "Absolutely, I have found several options for the Air Force 1 shoes for you that are around 5000 kr. Here are the top 3: 1. 'Nike Air Force 1 '07', available in various sizes for 4500 kr. 2. 'Nike Air Force 1 Low Retro' that is going for a price of 5200 kr. 3. 'Nike Air Force 1 High '07' with a price tag of 4800 kr. Would you like additional information about these shoes or need help with something else?"
+                
+                Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]."
             '''
 
             # Create the completion using GPT-4
