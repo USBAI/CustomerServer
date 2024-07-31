@@ -30,6 +30,8 @@ def chatbot_api(request):
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Include the product link in the response using the format {{product link}}. Link the product name to its product link if provided. Do not ask the user about brands or any technical details related to computer programming code.
+
+                When you have found a product that matches the user's request, respond with the product information directly instead of saying you will look for it. Use the following format for the response: "Here are the products I found for you: ((product name)) for [[price]] ." something like that when you respond that you found the product it a must to provide the product details you found!!!
             '''
 
             # Create the completion using GPT-3.5 Turbo
