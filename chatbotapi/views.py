@@ -46,19 +46,13 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
-            # Filter the bot response to check for product name and price
+            # Filter the bot response to check for product name
             product_name_match = re.search(r'\(\((.*?)\)\)', output_text)
-            price_match = re.search(r'\[\[(.*?)\]\]', output_text)
-
-            if not product_name_match or not price_match:
-                raise ValueError("The response does not include a valid product name and price in the required format.")
-
-            product_name = product_name_match.group(1)
-            product_price = price_match.group(1)
+            product_name = product_name_match.group(1) if product_name_match else ''
             open_status = bool(product_name)
 
             additional_data = [
-                {'open': open_status, 'product': product_name, 'price': product_price, 'index': 1}
+                {'open': open_status, 'product': product_name, 'index': 1}
             ]
 
             # Log the additional_data to the console
