@@ -45,8 +45,14 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
-            # Return the response as JSON
-            return JsonResponse({"response": output_text})
+            additional_data = [
+                {'open': False, 'product': '', 'index': 1}
+            ]
+            # Log the additional_data to the console
+            print('AI Response additional_data:', additional_data)
+
+            # Return the response as JSON with additional_data
+            return JsonResponse({"response": output_text, "additional_data": additional_data})
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
