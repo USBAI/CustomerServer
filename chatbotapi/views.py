@@ -34,12 +34,12 @@ def chatbot_api(request):
                 When you have found a product that matches the user's request, respond with the product information directly without stating that you are looking for it. Use the following format for the response: "Here are the products I found for you: ((product name)) for [[price]]." Ensure to provide all product details in your response.
             '''
 
-            # Create the completion using GPT-3.5 Turbo
+            # Create the completion using GPT-4
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4",
                 messages=[
-                    {"role": "system", "content": f'{prompt_tuning}'},
-                    {"role": "user", "content": f'{user_input}'},
+                    {"role": "system", "content": prompt_tuning},
+                    {"role": "user", "content": user_input},
                 ]
             )
 
