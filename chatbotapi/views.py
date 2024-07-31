@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import openai
+import re
 
 # Set your OpenAI API key
 openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
@@ -29,8 +30,6 @@ def chatbot_api(request):
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Include the product link in the response using the format {{product link}}. Link the product name to its product link if provided. Do not ask the user about brands or any technical details related to computer programming code.
-
-                Return the response as HTML.
             '''
 
             # Create the completion using GPT-3.5 Turbo
@@ -45,9 +44,15 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
+            # Filter the bot response to check for product name
+            product_name_match = re.search(r'\(\((.*?)\)\)', output_text)
+            product_name = product_name_match.group(1) if product_name_match else ''
+            open_status = bool(product_name)
+
             additional_data = [
-                {'open': True, 'product': '', 'index': 1}
+                {'open': open_status, 'product': product_name, 'index': 1}
             ]
+
             # Log the additional_data to the console
             print('AI Response additional_data:', additional_data)
 
