@@ -31,7 +31,11 @@ def chatbot_api(request):
 
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
 
-                When you have found a product that matches the user's request, respond with the product information directly without stating that you are looking for it. Use the following format for the response: "Here are the products I found for you: ((product name)) for [[price]]." Ensure to provide all product details in your response.
+                When you have found a product that matches the user's request, respond with only one product information directly without stating that you are looking for it. Use the following format for the response: "Here is the product I found for you: ((product name)) for [[price]]." Ensure to provide all product details in your response.
+
+                Avoid responses similar to this example: "Absolutely, I have found several options for the Air Force 1 shoes for you that are around 5000 kr. Here are the top 3: 1. 'Nike Air Force 1 '07', available in various sizes for 4500 kr. 2. 'Nike Air Force 1 Low Retro' that is going for a price of 5200 kr. 3. 'Nike Air Force 1 High '07' with a price tag of 4800 kr. Would you like additional information about these shoes or need help with something else?"
+                
+                Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]."
             '''
 
             # Create the completion using GPT-4
@@ -46,13 +50,19 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
-            # Filter the bot response to check for product name
+            # Filter the bot response to check for product name and price
             product_name_match = re.search(r'\(\((.*?)\)\)', output_text)
-            product_name = product_name_match.group(1) if product_name_match else ''
+            price_match = re.search(r'\[\[(.*?)\]\]', output_text)
+
+            if not product_name_match or not price_match:
+                raise ValueError("The response does not include a valid product name and price in the required format.")
+
+            product_name = product_name_match.group(1)
+            product_price = price_match.group(1)
             open_status = bool(product_name)
 
             additional_data = [
-                {'open': open_status, 'product': product_name, 'index': 1}
+                {'open': open_status, 'product': product_name, 'price': product_price, 'index': 1}
             ]
 
             # Log the additional_data to the console
