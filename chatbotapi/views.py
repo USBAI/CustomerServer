@@ -4,6 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import openai
 import re
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
 # Set your OpenAI API key
 openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
@@ -12,10 +16,14 @@ openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
 def chatbot_api(request):
     if request.method == 'POST':
         try:
+            logging.debug("Received POST request.")
             # Parse the JSON data from the request body
             data = json.loads(request.body)
             user_input = data.get('user_input', '')
             user_history = data.get('user_history', '')
+
+            logging.debug(f"user_input: {user_input}")
+            logging.debug(f"user_history: {user_history}")
 
             prompt_tuning = f'''
                 Your name is Kluret.
@@ -38,6 +46,7 @@ def chatbot_api(request):
                 Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]."
             '''
 
+            logging.debug("Sending request to OpenAI API.")
             # Create the completion using GPT-4
             response = openai.ChatCompletion.create(
                 model="gpt-4",
@@ -47,8 +56,10 @@ def chatbot_api(request):
                 ]
             )
 
+            logging.debug("Received response from OpenAI API.")
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
+            logging.debug(f"output_text: {output_text}")
 
             # Filter the bot response to check for product name and price
             product_name_match = re.search(r'\(\((.*?)\)\)', output_text)
@@ -66,13 +77,15 @@ def chatbot_api(request):
             ]
 
             # Log the additional_data to the console
-            print('AI Response additional_data:', additional_data)
+            logging.debug(f"AI Response additional_data: {additional_data}")
 
             # Return the response as JSON with additional_data
             return JsonResponse({"response": output_text, "additional_data": additional_data})
 
         except Exception as e:
+            logging.error(f"Error: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
     else:
+        logging.warning("Received non-POST request.")
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
