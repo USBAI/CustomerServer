@@ -46,7 +46,7 @@ def chatbot_api(request):
             output_text = response["choices"][0]["message"]["content"]
 
             additional_data = [
-                {'open': False, 'product': '', 'index': 1}
+                {'open': True, 'product': '', 'index': 1}
             ]
             # Log the additional_data to the console
             print('AI Response additional_data:', additional_data)
