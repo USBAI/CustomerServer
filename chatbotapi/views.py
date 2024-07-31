@@ -35,7 +35,7 @@ def chatbot_api(request):
 
                 Avoid responses similar to this example: "Absolutely, I have found several options for the Air Force 1 shoes for you that are around 5000 kr. Here are the top 3: 1. 'Nike Air Force 1 '07', available in various sizes for 4500 kr. 2. 'Nike Air Force 1 Low Retro' that is going for a price of 5200 kr. 3. 'Nike Air Force 1 High '07' with a price tag of 4800 kr. Would you like additional information about these shoes or need help with something else?"
                 
-                Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]."
+                Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]." remeber to name the product in one word max 2 words dont say like Adidas shoes just say for example like Adidas Ultraboost
             '''
 
             # Create the completion using GPT-4
