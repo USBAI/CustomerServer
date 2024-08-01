@@ -51,6 +51,17 @@ def chatbot_api(request):
                         
                         Each link will open up in a new tab for your convenience. Let me know if you need any further assistance.
                     ]
+                    2[
+                        <p>I'm sorry for any confusion, but as an advanced AI search engine, Kluret, I am currently under development and do not yet have the ability to search the entire web of Sweden for products. I'm here to assist you in understanding how to use me in the future when I am fully developed. Eventually, you will be able to use me to find products like iPhone 13 for about 6000kr. I would typically provide results in this format:
+
+                        ''Here is a product I found for you: iPhone 13 for 6000kr. You can buy it <a href="product URL here" id="product-link" target="_blank">here</a>. Description: A brief description of the product.''
+                        
+                        Please remember to replace 'product URL here' with the actual URL of the product. I appreciate your understanding.
+                        </p>
+
+                        ==href="product URL here" is not a valid link make sure it is a valid link
+                        
+                     ]
                 ]
 
 
