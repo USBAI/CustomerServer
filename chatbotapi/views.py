@@ -62,6 +62,23 @@ def chatbot_api(request):
                         ==href="product URL here" is not a valid link make sure it is a valid link
                         
                      ]
+                     3[
+                         <p>Sure, I found some Samsung products within your budget of 4000kr. Here are the top 5 recommendations: 
+
+                        1. Here is a product I found for you: Samsung Galaxy A52 for [[4000kr]](<a href="https://www.samsung.se/product-link1" target="_blank" id="product-link">Samsung Galaxy A52</a>). Description: Powerful multitasking performance with Qualcomm Snapdragon processor and 6GB RAM.
+                        
+                        2. Here is a product I found for you: Samsung Galaxy Tab A7 for [[3850kr]](<a href="https://www.samsung.se/product-link2" target="_blank" id="product-link">Samsung Galaxy Tab A7</a>). Description: Featuring a vibrant 10.4-inch display and quad-speaker system for immersive entertainment.
+                        
+                        3. Here is a product I found for you: Samsung Galaxy Watch Active2 for [[3700kr]](<a href="https://www.samsung.se/product-link3" target="_blank" id="product-link">Samsung Galaxy Watch Active2</a>). Description: Top-notch fitness tracking with ECG, heart rate, sleep and workout monitoring.
+                        
+                        4. Here is a product I found for you: Samsung Crystal UHD TU7020 for [[3999kr]](<a href="https://www.samsung.se/product-link4" target="_blank" id="product-link">Samsung Crystal UHD TU7020</a>). Description: A 43-inch UHD TV with HDR10+ and PureColor technology ensuring breathtaking image quality.
+                        
+                        5. Here is a product I found for you: Samsung Galaxy Buds Pro for [[3150kr]](<a href="https://www.samsung.se/product-link5" target="_blank" id="product-link">Samsung Galaxy Buds Pro</a>). Description: Featuring dynamic 2-way speakers for incredible sound, IPX7 water and sweat resistance, and voice detection for intuitive functionality.
+                        
+                        I hope this helps! Let me know if you need any further assistance.</p>
+
+                        ==/product-link1 is not valid path so fix it next time 
+                    ]
                 ]
 
 
