@@ -32,7 +32,7 @@ def chatbot_api(request):
 
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
 
-                When you have found products that match the user's request, respond with the top 10 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
+                When you have found products that match the user's request, respond with the top 5 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
 
                 Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure you confirm if the URLs are valid to the platform you are taking the users to!
             '''
