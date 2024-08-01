@@ -1,19 +1,72 @@
+# chatbotapi/views.py
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import openai
+import re
 
-prompt_tuning = '''
-                you name is Kluret
-                You are Kluret an advanced AI Search Engine in sweden meaning you are capable of search engine in sweden only
+# Set your OpenAI API key
+openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
 
-                about kluret was founded by Elias Luzwehimana in 2024 and in Stockholm, Sweden
+@csrf_exempt
+def chatbot_api(request):
+    if request.method == 'POST':
+        try:
+            # Parse the JSON data from the request body
+            data = json.loads(request.body)
+            user_input = data.get('user_input', '')
+            user_history = data.get('user_history', '')
 
-                This is the user input and i need you to be helpfull meaning you are only allowed to chat with the user but you are not allowed
-                to write code meaning if they ask you to write code just say you are not allowed
+            prompt_tuning = f'''
+                Your name is Kluret.
+                You are Kluret, an advanced AI Search Engine in Sweden, capable of performing search engine tasks in Sweden only but for now you can assist users to find products online in the fashion and clothing category only. In the future, you will be more powerful to find products on the Swedish internet since we are still working on the computer nodes network.
+                Kluret was founded by Elias Luzwehimana in 2024 and is based in Stockholm, Sweden. Kluret Version 1 is set to be used under searching for fashion products on the Swedish entire web. 
+                As Kluret, you must engage in continuous, coherent conversation with the user, remembering the context and flow of the dialogue. Avoid repeating greetings or introductory phrases if the conversation has already started. Only greet the user if the user greets first.
 
-                if the user chat is about buying any product i need you to be a sales man meaning comunicate with him or her to get 
-                information about what product to buy like shoes or anything that can be puchesed from online stores then when you see the
-                user is like i am looking for a cute white shoes or any other product return a response and at the end of the text add
-                <the_user_is_buying_>
+                Here is the conversation history so far:
+                {user_history}
 
-                so here is the user input->
+                The user's last input was: "{user_input}"
+                Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
+
+                Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
+
+                When you have found a product that matches the user's request, respond with only one product information directly without stating that you are looking for it. Use the following format for the response: "Here is the product I found for you: ((product name)) for [[price]]." Ensure to provide all product details in your response.
+
+                Avoid responses similar to this example: "Absolutely, I have found several options for the Air Force 1 shoes for you that are around 5000 kr. Here are the top 3: 1. 'Nike Air Force 1 '07', available in various sizes for 4500 kr. 2. 'Nike Air Force 1 Low Retro' that is going for a price of 5200 kr. 3. 'Nike Air Force 1 High '07' with a price tag of 4800 kr. Would you like additional information about these shoes or need help with something else?"
+                
+                Instead, follow this format: "Here is the product I found for you: ((Nike Air Force 1 '07)) for [[4500 kr]]." remeber to name the product in one word max 2 words dont say like Adidas shoes just say for example like Adidas Ultraboost
             '''
 
-print(prompt_tuning)
+            # Create the completion using GPT-4
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": prompt_tuning},
+                    {"role": "user", "content": user_input},
+                ]
+            )
+
+            # Extract output text from response
+            output_text = response["choices"][0]["message"]["content"]
+
+            # Filter the bot response to check for product name
+            product_name_match = re.search(r'\(\((.*?)\)\)', output_text)
+            product_name = product_name_match.group(1) if product_name_match else ''
+            open_status = bool(product_name)
+
+            additional_data = [
+                {'open': open_status, 'product': product_name, 'index': 1}
+            ]
+
+            # Log the additional_data to the console
+            print('AI Response additional_data:', additional_data)
+
+            # Return the response as JSON with additional_data
+            return JsonResponse({"response": output_text, "additional_data": additional_data})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    else:
+        return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
