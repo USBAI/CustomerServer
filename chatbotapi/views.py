@@ -33,7 +33,7 @@ def chatbot_api(request):
 
                 When you have found products that match the user's request, respond with the top 10 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
 
-                respond in html format dont include styling name all the a links id to be products links
+                respond in html format dont include styling name all the a links id to be products links under the links they shall have the valid urls link to the product page details!!!
             '''
 
             # Create the completion using GPT-4
