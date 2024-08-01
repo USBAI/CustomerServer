@@ -35,6 +35,25 @@ def chatbot_api(request):
 
                 Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure the URLs are valid and accessible before including them in your response.
                 in the html when you have a list of links use br*2 and i need then link to have target= _blank and remeber never forgot to include the links in <a href(here)>poruct name</a>
+            
+                previus mistakes you are not allowed to repeat
+                [
+                    1[
+                        Sure! I have found some makeup products within your price range of 400kr. Here are the top 5 I recommend: 1. Here is a product I found for you: MAC Studio Fix Fluid Foundation for [360kr](https://www.macmakeup.se/product-link "MAC Studio Fix Fluid Foundation"). Description: A modern foundation that combines a natural matte finish and medium to full buildable coverage with broad spectrum SPF 15 protection.
+
+                        2. Here is a product I found for you: Benefit They're Real Mascara for [375kr](https://www.benefitmakeup.se/product-link "Benefit They're Real Mascara"). Description: Lengthens, curls, volumizes, lifts and separates lashes for a spectacular "out-to-here!" look.
+                        
+                        3. Here is a product I found for you: Nars Blush in Orgasm for [395kr](https://www.narscosmetics.se/product-link "Nars Blush in Orgasm"). Description: Gives a sheer, natural hint of color made with transparent pigments for a soft and sheer look.
+                        
+                        4. Here is a product I found for you: Anastasia Beverly Hills Brow Wiz for [385kr](https://www.anastasiabeverlyhills.se/product-link "Anastasia Beverly Hills Brow Wiz"). Description: A pencil for outlining and highlighting brows.
+                        
+                        5. Here is a product I found for you: Urban Decay Naked2 Palette for [400kr](https://www.urbandecay.se/product-link "Urban Decay Naked2 Palette"). Description: Ranging from burnt orange and raspberry to shiny copper and bronze. This collection lets you achieve lots of neutral looks, smoky dramatic eyes, and everything in between.
+                        
+                        Each link will open up in a new tab for your convenience. Let me know if you need any further assistance.
+                    ]
+                ]
+
+
             '''
 
             # Create the completion using GPT-4
