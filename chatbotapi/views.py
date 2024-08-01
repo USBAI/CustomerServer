@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import openai
 import re
-import requests
 
 # Set your OpenAI API key
 openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
@@ -34,7 +33,7 @@ def chatbot_api(request):
 
                 When you have found products that match the user's request, respond with the top 5 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
 
-                Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure you confirm if the URLs are valid to the platform you are taking the users to!
+                Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure the URLs are valid and accessible before including them in your response.
             '''
 
             # Create the completion using GPT-4
@@ -50,31 +49,16 @@ def chatbot_api(request):
             output_text = response["choices"][0]["message"]["content"]
 
             # Parse the output text to find product details
-            products = re.findall(r'\(\((.*?)\)\) for \[\[(.*?)\]\]\. You can buy it \[here\]\((.*?)\)\. Description: \(\((.*?)\)\)\.', output_text)
-
-            valid_products = []
-            for product_name, product_price, product_url, product_description in products:
-                # Verify if the URL is valid
-                try:
-                    response = requests.get(product_url)
-                    if response.status_code == 200:
-                        valid_products.append({
-                            'product': product_name,
-                            'price': product_price,
-                            'url': product_url,
-                            'description': product_description
-                        })
-                except requests.RequestException:
-                    continue
+            products = re.findall(r'Here is a product I found for you: \(\((.*?)\)\) for \[\[(.*?)\]\]\. You can buy it \[here\]\((.*?)\)\. Description: \(\((.*?)\)\)\.', output_text)
 
             additional_data = []
-            for index, product in enumerate(valid_products, start=1):
+            for index, (product_name, product_price, product_url, product_description) in enumerate(products, start=1):
                 additional_data.append({
                     'open': True,
-                    'product': product['product'],
-                    'price': product['price'],
-                    'url': product['url'],
-                    'description': product['description'],
+                    'product': product_name,
+                    'price': product_price,
+                    'url': product_url,
+                    'description': product_description,
                     'index': index
                 })
 
