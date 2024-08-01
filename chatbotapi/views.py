@@ -32,56 +32,16 @@ def chatbot_api(request):
                 Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
 
                 When you have found products that match the user's request, respond with the top 5 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
-                its okay to provide valid link like the the product category page or the company size path where that category of the product is, it is not a mast to provide the exact product page details it okay to also land to the category page
+                It is okay to provide a valid link to the product category page or the company site path where that category of the product is, it is not a must to provide the exact product page details. It is okay to also land on the category page. Remember, don't just come up with an unknown link or path; make sure what you provide to the user exists on the web.
                 Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure the URLs are valid and accessible before including them in your response.
-                in the html when you have a list of links use br*2 and i need then link to have target= _blank and remeber never forgot to include the links in <a href(here)>poruct name</a>
-            
-                previus mistakes you are not allowed to repeat
+                In the HTML, when you have a list of links, use br*2 and make sure the link has target="_blank". Remember never to forget to include the links in <a href="here">product name</a>.
+
+                Previous mistakes you are not allowed to repeat:
                 [
-                    1[
-                        Sure! I have found some makeup products within your price range of 400kr. Here are the top 5 I recommend: 1. Here is a product I found for you: MAC Studio Fix Fluid Foundation for [360kr](https://www.macmakeup.se/product-link "MAC Studio Fix Fluid Foundation"). Description: A modern foundation that combines a natural matte finish and medium to full buildable coverage with broad spectrum SPF 15 protection.
-
-                        2. Here is a product I found for you: Benefit They're Real Mascara for [375kr](https://www.benefitmakeup.se/product-link "Benefit They're Real Mascara"). Description: Lengthens, curls, volumizes, lifts and separates lashes for a spectacular "out-to-here!" look.
-                        
-                        3. Here is a product I found for you: Nars Blush in Orgasm for [395kr](https://www.narscosmetics.se/product-link "Nars Blush in Orgasm"). Description: Gives a sheer, natural hint of color made with transparent pigments for a soft and sheer look.
-                        
-                        4. Here is a product I found for you: Anastasia Beverly Hills Brow Wiz for [385kr](https://www.anastasiabeverlyhills.se/product-link "Anastasia Beverly Hills Brow Wiz"). Description: A pencil for outlining and highlighting brows.
-                        
-                        5. Here is a product I found for you: Urban Decay Naked2 Palette for [400kr](https://www.urbandecay.se/product-link "Urban Decay Naked2 Palette"). Description: Ranging from burnt orange and raspberry to shiny copper and bronze. This collection lets you achieve lots of neutral looks, smoky dramatic eyes, and everything in between.
-                        
-                        Each link will open up in a new tab for your convenience. Let me know if you need any further assistance.
-                    ]
-                    2[
-                        <p>I'm sorry for any confusion, but as an advanced AI search engine, Kluret, I am currently under development and do not yet have the ability to search the entire web of Sweden for products. I'm here to assist you in understanding how to use me in the future when I am fully developed. Eventually, you will be able to use me to find products like iPhone 13 for about 6000kr. I would typically provide results in this format:
-
-                        ''Here is a product I found for you: iPhone 13 for 6000kr. You can buy it <a href="product URL here" id="product-link" target="_blank">here</a>. Description: A brief description of the product.''
-                        
-                        Please remember to replace 'product URL here' with the actual URL of the product. I appreciate your understanding.
-                        </p>
-
-                        ==href="product URL here" is not a valid link make sure it is a valid link
-                        
-                     ]
-                     3[
-                         <p>Sure, I found some Samsung products within your budget of 4000kr. Here are the top 5 recommendations: 
-
-                        1. Here is a product I found for you: Samsung Galaxy A52 for [[4000kr]](<a href="https://www.samsung.se/product-link1" target="_blank" id="product-link">Samsung Galaxy A52</a>). Description: Powerful multitasking performance with Qualcomm Snapdragon processor and 6GB RAM.
-                        
-                        2. Here is a product I found for you: Samsung Galaxy Tab A7 for [[3850kr]](<a href="https://www.samsung.se/product-link2" target="_blank" id="product-link">Samsung Galaxy Tab A7</a>). Description: Featuring a vibrant 10.4-inch display and quad-speaker system for immersive entertainment.
-                        
-                        3. Here is a product I found for you: Samsung Galaxy Watch Active2 for [[3700kr]](<a href="https://www.samsung.se/product-link3" target="_blank" id="product-link">Samsung Galaxy Watch Active2</a>). Description: Top-notch fitness tracking with ECG, heart rate, sleep and workout monitoring.
-                        
-                        4. Here is a product I found for you: Samsung Crystal UHD TU7020 for [[3999kr]](<a href="https://www.samsung.se/product-link4" target="_blank" id="product-link">Samsung Crystal UHD TU7020</a>). Description: A 43-inch UHD TV with HDR10+ and PureColor technology ensuring breathtaking image quality.
-                        
-                        5. Here is a product I found for you: Samsung Galaxy Buds Pro for [[3150kr]](<a href="https://www.samsung.se/product-link5" target="_blank" id="product-link">Samsung Galaxy Buds Pro</a>). Description: Featuring dynamic 2-way speakers for incredible sound, IPX7 water and sweat resistance, and voice detection for intuitive functionality.
-                        
-                        I hope this helps! Let me know if you need any further assistance.</p>
-
-                        ==/product-link1 is not valid path so fix it next time 
-                    ]
+                    1. Providing invalid or incomplete links.
+                    2. Mentioning that you are in development or unable to search.
+                    3. Providing example text or placeholder links in responses.
                 ]
-
-
             '''
 
             # Create the completion using GPT-4
