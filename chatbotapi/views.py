@@ -42,6 +42,10 @@ def chatbot_api(request):
                     2. Mentioning that you are in development or unable to search.
                     3. Providing example text or placeholder links in responses.
                 ]
+
+
+
+                **important the links shall not have a path only the site that is selling that type of product and you work is to scan the swedish web and return the information about the user input and if you provide them the link they shall be just be links not paths on the links**
             '''
 
             # Create the completion using GPT-4
