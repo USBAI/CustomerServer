@@ -34,7 +34,7 @@ def chatbot_api(request):
                 When you have found products that match the user's request, respond with the top 5 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
 
                 Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure the URLs are valid and accessible before including them in your response.
-                in the html when you have a list of links use br*2 and i need then link to have target= _blank
+                in the html when you have a list of links use br*2 and i need then link to have target= _blank and remeber never forgot to include the links in <a href(here)>poruct name</a>
             '''
 
             # Create the completion using GPT-4
