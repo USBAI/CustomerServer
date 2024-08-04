@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'web_engine',
     'users',
-    'kluret_engine',
     'kluret_user_id',
     'UserCart',
     'Notify',
@@ -54,7 +53,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://usbai.org",
     'https://www.kluret.se',
-    "https://usbai.vercel.app/",
+    "https://usbai.vercel.app",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
 ]
 
@@ -62,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://usbai.org",
     'https://www.kluret.se',
-    "https://usbai.vercel.app/",
+    "https://usbai.vercel.app",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
 ]
 

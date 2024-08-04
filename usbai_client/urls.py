@@ -14,7 +14,6 @@ urlpatterns = [
     path('api/', include('chatbotapi.urls')), 
     path('products/', include('web_engine.urls')),
     path('users/', include('users.urls')),
-    path('kluret_engine/', include('kluret_engine.urls')),
     path('api/', include('kluret_user_id.urls')),
     path('getcart/', include('UserCart.urls')),
     path('notify/', include('Notify.urls')),
