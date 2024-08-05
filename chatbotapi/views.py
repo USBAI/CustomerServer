@@ -11,7 +11,7 @@ product_data = [
     {
         "id": 1,
         "category": "Mobile_phones",
-        "api": "http://127.0.0.1:8001/Mobile_phones/Mobile_phones",
+        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Mobile_phones/Mobile_phones",
         "indexes": {
             "start": 1,
             "end": 10515
@@ -20,7 +20,7 @@ product_data = [
     {
         "id": 2,
         "category": "Mobile_phone_case",
-        "api": "http://127.0.0.1:8001/Mobile_phone_case/Mobile_phone_case",
+        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Mobile_phone_case/Mobile_phone_case",
         "indexes": {
             "start": 1,
             "end": 16000
@@ -29,7 +29,7 @@ product_data = [
     {
         "id": 3,
         "category": "Camera_Phone_Accessories",
-        "api": "http://127.0.0.1:8001/Camera_Phone_Accessories/Camera_Phone_Accessories",
+        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Camera_Phone_Accessories/Camera_Phone_Accessories",
         "indexes": {
             "start": 1,
             "end": 263
