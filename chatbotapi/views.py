@@ -1,4 +1,3 @@
-# chatbotapi/views.py
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -7,6 +6,36 @@ import re
 
 # Set your OpenAI API key
 openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
+
+product_data = [
+    {
+        "id": 1,
+        "category": "Mobile_phones",
+        "api": "http://127.0.0.1:8001/Mobile_phones/Mobile_phones",
+        "indexes": {
+            "start": 1,
+            "end": 10515
+        }
+    },
+    {
+        "id": 2,
+        "category": "Mobile_phone_case",
+        "api": "http://127.0.0.1:8001/Mobile_phone_case/Mobile_phone_case",
+        "indexes": {
+            "start": 1,
+            "end": 16000
+        }
+    },
+    {
+        "id": 3,
+        "category": "Camera_Phone_Accessories",
+        "api": "http://127.0.0.1:8001/Camera_Phone_Accessories/Camera_Phone_Accessories",
+        "indexes": {
+            "start": 1,
+            "end": 263
+        }
+    }
+]
 
 @csrf_exempt
 def chatbot_api(request):
@@ -17,10 +46,14 @@ def chatbot_api(request):
             user_input = data.get('user_input', '')
             user_history = data.get('user_history', '')
 
+            # Define product categories
+            product_categories = ", ".join([category["category"] for category in product_data])
+
             prompt_tuning = f'''
                 Your name is Kluret.
                 You are Kluret, an advanced AI Search Engine in Sweden, capable of performing search engine tasks in Sweden only but for now you can assist users to find products online. In the future, you will be more powerful to find products on the Swedish internet since we are still working on the computer nodes network.
-                Kluret was founded by Elias Luzwehimana in 2024 and is based in Stockholm, Sweden. Kluret Version 1 is set to be used under searching for products on the Swedish entire web. 
+                Kluret was founded by Elias Luzwehimana in 2024 and is based in Stockholm, Sweden. Kluret Version 1 is set to be used under searching for products on the Swedish entire web.
+
                 As Kluret, you must engage in continuous, coherent conversation with the user, remembering the context and flow of the dialogue. Avoid repeating greetings or introductory phrases if the conversation has already started. Only greet the user if the user greets first.
 
                 Here is the conversation history so far:
@@ -29,23 +62,53 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something in the fashion category, understand the product they want and ask them for a specific price range if they don't provide one. If they provide a product name, include the product name in your response using the format ((product name)). If they provide a price range, include the price in the format [[price]]. Do not ask the user about brands or any technical details related to computer programming code.
+                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: {product_categories}. 
 
-                When you have found products that match the user's request, respond with the top 5 product information directly without stating that you are looking for it. Use the following format for each product: "Here is a product I found for you: ((product name)) for [[price]]. You can buy it [here]((product URL)). Description: ((product description))." Ensure to provide all product details in your response.
-                It is okay to provide a valid link to the product category page or the company site path where that category of the product is, it is not a must to provide the exact product page details. It is okay to also land on the category page. Remember, don't just come up with an unknown link or path; make sure what you provide to the user exists on the web.
-                Respond in HTML format without styling. Name all the anchor links' id as 'product-link'. Under the links, they shall have the valid URLs linked to the product page. Ensure the URLs are valid and accessible before including them in your response.
-                In the HTML, when you have a list of links, use br*2 and make sure the link has target="_blank". Remember never to forget to include the links in <a href="here">product name</a>.
+                - If the user specifies a product name, respond directly with information about that product, including its category. Use the format ((product name)) for the product and [[category]] for the category.
+                - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary.
+                - If the product name is clear, do not ask for additional details like features, storage capacity, or brand preferences unless explicitly mentioned by the user.
 
-                Previous mistakes you are not allowed to repeat:
-                [
-                    1. Providing invalid or incomplete links.
-                    2. Mentioning that you are in development or unable to search.
-                    3. Providing example text or placeholder links in responses.
-                ]
+                Example responses:
+                - If the user says "I want to buy an iPhone 13": "You are looking for an ((iPhone 13)) in the [[Mobile_phones]] category."
+                - If the user says "I am looking for a black iPhone 13 around 7000kr": "You are looking for a black ((iPhone 13)) around 7000kr in the [[Mobile_phones]] category."
 
+                Avoid these mistakes:
+                - Do not ask for storage capacity, features, or specific brand preferences unless the user mentions them.
+                - Do not greet the user multiple times in the same conversation.
+                - Do not ask for clarification on details that the user has already provided clearly.
 
+                Focus on:
+                - Providing clear and concise responses.
+                - Identifying the product name and category correctly.
+                - Setting the 'open' attribute to True if the product is found.
 
-                **important the links shall not have a path only the site that is selling that type of product and you work is to scan the swedish web and return the information about the user input and if you provide them the link they shall be just be links not paths on the links**
+                The user's last input was about finding a product. Your response should focus on confirming the product and its category. Here is an example of how you should structure your responses:
+
+                - User input: "I am looking for a black iPhone 13 around 7000kr."
+                - Correct response: "You are looking for a black ((iPhone 13)) around 7000kr in the [[Mobile_phones]] category."
+
+                If a product name is provided:
+                - Confirm the product name and category in your response.
+                - Include the product name using ((product name)).
+                - Include the category using [[category]].
+
+                If the product is found, return the product details and set 'open' to True in the response.
+
+                Additional instructions:
+                - Always provide the product name and category in the response.
+                - Do not repeat greetings or introductory phrases if the conversation has already started.
+                - Maintain a coherent and contextually appropriate dialogue.
+
+                If the user expresses interest in a product and you identify the product name and category, set 'open' to True. Your response should be informative and focused on the product the user wants to buy.
+
+                Do not ask about:
+                - Storage capacities.
+                - Additional features.
+                - Brand preferences.
+
+                Only ask for clarification if the product name is unclear or ambiguous.
+
+                Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input.
             '''
 
             # Create the completion using GPT-4
@@ -60,22 +123,42 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
-            # Parse the output text to find product details
-            products = re.findall(r'Here is a product I found for you: \(\((.*?)\)\) for \[\[(.*?)\]\]\. You can buy it \[here\]\((.*?)\)\. Description: \(\((.*?)\)\)\.', output_text)
+            # Log the output text to the console for debugging
+            print('AI Response output_text:', output_text)
 
-            additional_data = []
-            for index, (product_name, product_price, product_url, product_description) in enumerate(products, start=1):
-                additional_data.append({
-                    'open': True,
-                    'product': product_name,
-                    'price': product_price,
-                    'url': product_url,
-                    'description': product_description,
-                    'index': index
-                })
+            # Extract product category and name from the response
+            product_info = re.search(r'\(\((.*?)\)\)', output_text)
+            category_info = re.search(r'\[\[(.*?)\]\]', output_text)
 
-            # Log the additional_data to the console
-            print('AI Response additional_data:', additional_data)
+            product_name = product_info.group(1) if product_info else 'Unknown'
+            product_category = category_info.group(1) if category_info else 'Unknown'
+
+            # Find the API endpoint for the product category
+            api_endpoint = None
+            start_index = None
+            end_index = None
+            for category in product_data:
+                if category['category'] == product_category:
+                    api_endpoint = category['api']
+                    start_index = category['indexes']['start']
+                    end_index = category['indexes']['end']
+
+            # Initialize additional_data with 'open' set to False
+            additional_data = {
+                'category': product_category,
+                'product': product_name,
+                'open': False,
+                'api_endpoint': api_endpoint,
+                'start': start_index,
+                'end': end_index
+            }
+
+            # Check if product name is found
+            if product_name != 'Unknown':
+                additional_data['open'] = True
+
+            # Log the extracted product info for debugging
+            print('Extracted product info:', product_name, product_category)
 
             # Return the response as JSON with additional_data
             return JsonResponse({"response": output_text, "additional_data": additional_data})
