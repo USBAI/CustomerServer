@@ -56,7 +56,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://usbai.vercel.app",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
     "https://webnodes-1ac3b80d6a1c.herokuapp.com",
-    "https://usbaiclient-8c59f2a693e9.herokuapp.com/"
+    "https://usbaiclient-8c59f2a693e9.herokuapp.com/",
+    "https://webnode-9662dc9a689b.herokuapp.com/"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
