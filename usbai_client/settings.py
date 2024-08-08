@@ -55,7 +55,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://www.kluret.se',
     "https://usbai.vercel.app",
     "https://webenginegptai-f6919d4667cb.herokuapp.com",
-    "https://webnodes-1ac3b80d6a1c.herokuapp.com"
+    "https://webnodes-1ac3b80d6a1c.herokuapp.com",
+    "https://usbaiclient-8c59f2a693e9.herokuapp.com/"
 ]
 
 CSRF_TRUSTED_ORIGINS = [

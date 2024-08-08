@@ -5,10 +5,10 @@ stripe={
     ='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'
 }
 
-heroku{
+'heroku{
     ='iusoh9h824p8839regp38rowogsfucuofkubdspijgo'
 }=Auth
-{7670}
+{7670}'
 
 github{
     'juiekw33osn'
@@ -17,3 +17,12 @@ github{
 one.com{
     =ioufiyghijpordhgbjhhijohugwr
 }
+
+gmail.com{
+    oiohuigyuhioodopiuhfyhvodjjihfudipghoi
+}
+
+heroku[
+    new
+    {kluret_password_ohibjdpojhugiyfbjwnkvjbhbjnkworubrnoivwrnohiygduf3}
+]
