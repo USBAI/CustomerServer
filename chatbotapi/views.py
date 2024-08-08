@@ -62,7 +62,7 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: {product_categories}. 
+                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: all product that can be bougt online like eccommerce products. 
 
                 - If the user specifies a product name, respond directly with information about that product, including its category. Use the format ((product name)) for the product and [[category]] for the category.
                 - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary.
