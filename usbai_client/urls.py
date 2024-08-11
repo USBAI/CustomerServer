@@ -18,4 +18,5 @@ urlpatterns = [
     path('getcart/', include('UserCart.urls')),
     path('notify/', include('Notify.urls')),
     path('kluret_stripe/', include('kluret_stripe.urls')),
+    path('addcart/', include('AddCart.urls')), 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

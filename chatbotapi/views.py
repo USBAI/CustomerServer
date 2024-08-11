@@ -46,6 +46,10 @@ def chatbot_api(request):
             user_input = data.get('user_input', '')
             user_history = data.get('user_history', '')
 
+            # Print the received data for debugging
+            print("Received user input:", user_input)
+            print("Received user history:", user_history)
+
             # Define product categories
             product_categories = ", ".join([category["category"] for category in product_data])
 
@@ -111,6 +115,9 @@ def chatbot_api(request):
                 Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input.
             '''
 
+            # Indicate that the API call is being made
+            print("Making API call to OpenAI...")
+
             # Create the completion using GPT-4
             response = openai.ChatCompletion.create(
                 model="gpt-4",
@@ -123,7 +130,7 @@ def chatbot_api(request):
             # Extract output text from response
             output_text = response["choices"][0]["message"]["content"]
 
-            # Log the output text to the console for debugging
+            # Print the response from OpenAI for debugging
             print('AI Response output_text:', output_text)
 
             # Extract product category and name from the response
@@ -164,7 +171,9 @@ def chatbot_api(request):
             return JsonResponse({"response": output_text, "additional_data": additional_data})
 
         except Exception as e:
+            print("Exception occurred:", e)  # Print exception details for debugging
             return JsonResponse({"error": str(e)}, status=500)
 
     else:
+        print("Request method is not POST")  # Indicate incorrect request method
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)

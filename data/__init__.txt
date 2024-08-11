@@ -11,12 +11,13 @@ stripe={
 {7670}'
 
 github{
-    'juiekw33osn'
+    'kluret_password_nkjbhvyduwifjoiuvyfdfbuniwds'
 }
 
 one.com{
     =ioufiyghijpordhgbjhhijohugwr
 }
+
 
 gmail.com{
     oiohuigyuhioodopiuhfyhvodjjihfudipghoi
@@ -25,4 +26,8 @@ gmail.com{
 heroku[
     new
     {kluret_password_ohibjdpojhugiyfbjwnkvjbhbjnkworubrnoivwrnohiygduf3}
+]
+
+openai[
+    {kluret_password_oioubiuh0u9yrwhfjnfbhigvuy8urwojfbhvu}
 ]
