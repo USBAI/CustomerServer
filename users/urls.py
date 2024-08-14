@@ -4,7 +4,5 @@ from . import views
 urlpatterns = [
     path('register_user/', views.register_user, name='register_user'),
     path('login_authorizer/', views.login_authorizer, name='register_user'),
-
-    
-    # Add more URLs as needed for your app
+    path('get-user-details/', views.get_user_details, name='get_user_details'),
 ]

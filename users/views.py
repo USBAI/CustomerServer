@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import firebase_admin
 from firebase_admin import credentials, db
-import random,string
+import random, string
 
 # Path to Firebase credentials JSON file
 FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
@@ -34,6 +34,7 @@ def register_user(request):
 
             # Save data to Realtime Database
             user_ref = ref.child(email.replace('.', 'dot').replace('@', 'at'))
+
             def generate_random_string(min_len, max_len):
                 length = random.randint(min_len, max_len)
                 characters = string.ascii_letters + string.digits
@@ -54,12 +55,6 @@ def register_user(request):
             return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
 
     return JsonResponse({"status": "failed", "message": "Only POST requests are allowed"})
-
-
-
-
-
-
 
 @csrf_exempt
 def login_authorizer(request):
@@ -91,4 +86,34 @@ def login_authorizer(request):
         except json.JSONDecodeError as e:
             return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
 
-    return JsonResponse({"status": "failed", "message": "Only POST requests are allowed login"})
+    return JsonResponse({"status": "failed", "message": "Only POST requests are allowed for login"})
+
+@csrf_exempt
+def get_user_details(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if not user_id:
+                return JsonResponse({"status": "failed", "message": "User ID is required"})
+
+            # Get a reference to the Firebase Realtime Database
+            ref = db.reference('All_Users/Kluret_Users')
+
+            # Iterate through all users to find the user by User-ID
+            all_users = ref.get()
+            for email, user_data in all_users.items():
+                if user_data.get('User-ID') == user_id:
+                    return JsonResponse({
+                        "status": "success",
+                        "email": email.replace('dot', '.').replace('at', '@'),
+                        "password": user_data.get('password')
+                    })
+
+            return JsonResponse({"status": "failed", "message": "User not found"})
+
+        except json.JSONDecodeError as e:
+            return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
+
+    return JsonResponse({"status": "failed", "message": "Only POST requests are allowed for fetching user details"})

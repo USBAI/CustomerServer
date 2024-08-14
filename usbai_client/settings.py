@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'Notify',
     'kluret_stripe',
     'AddCart',
+    'Users_Order',
 ]
 
 MIDDLEWARE = [
