@@ -52,58 +52,61 @@ def move_order_to_all_orders(user_id, order_id, user_order_ref):
         if not all_orders_ref.get():
             all_orders_ref.set({})
 
+        # Find the next available index
+        all_orders = all_orders_ref.get()
+        next_index = len(all_orders) + 1 if all_orders else 1
+
+        # Create a new folder with the next index
+        order_folder_ref = all_orders_ref.child(str(next_index))
+
         # Get the order data
         order_data = user_order_ref.get()
 
-        # Create a new entry under All_Orders with the same order_id
-        all_orders_ref.child(order_id).set(order_data)
+        # Move the order data to the new folder
+        order_folder_ref.set(order_data)
 
-        print(f"Order {order_id} moved to All_Orders.")
+        print(f"Order {order_id} moved to All_Orders/{next_index}.")
+
+        # Deactivate the payment link
+        deactivate_payment_link(order_data['payment_intent_id'])
+
+        # Delete the original order from User_Orders
+        user_order_ref.delete()
+
     except Exception as e:
         print(f"Error moving order to All_Orders: {str(e)}")
 
-def delete_order_and_payment_link(user_id, order_id, payment_intent_id):
-    # Delete the order from Firebase
-    user_order_ref = db.reference(f'User_Orders/{user_id}/{order_id}')
-    user_order_ref.delete()
-    print(f"Order {order_id} deleted.")
-
-    # Cancel or expire the payment intent or checkout session
+def deactivate_payment_link(payment_intent_id):
     try:
-        # Check if the payment_intent_id is actually a PaymentIntent or a Checkout Session
-        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-        if payment_intent:
-            stripe.PaymentIntent.cancel(payment_intent_id)
-            print(f"Payment intent {payment_intent_id} canceled.")
-        else:
-            # If it's a checkout session, expire it
-            session = stripe.checkout.Session.retrieve(payment_intent_id)
-            if session:
-                stripe.checkout.Session.expire(payment_intent_id)
-                print(f"Checkout session {payment_intent_id} expired.")
+        # Deactivate the payment link by canceling the PaymentIntent
+        stripe.PaymentIntent.cancel(payment_intent_id)
+        print(f"Payment intent {payment_intent_id} canceled.")
     except stripe.error.StripeError as e:
-        print(f"Error canceling payment intent or expiring session: {str(e)}")
+        print(f"Error canceling payment intent: {str(e)}")
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
 
-def schedule_payment_check(payment_intent_id, user_id, order_id, payment_link, interval=5, duration=60):
+def schedule_payment_check(payment_intent_id, user_id, order_id, payment_link, interval=5, duration=600):  # 600 seconds = 10 minutes
     elapsed_time = 0
 
     def check_and_reschedule():
         nonlocal elapsed_time
-        if elapsed_time < duration:
-            payment_successful = check_payment_status(payment_intent_id, user_id, order_id)
-            if not payment_successful:
-                elapsed_time += interval
+        payment_successful = check_payment_status(payment_intent_id, user_id, order_id)
+        if payment_successful:
+            print("Stopping further checks as payment was successful.")
+        else:
+            elapsed_time += interval
+            print(f"Elapsed time: {elapsed_time} seconds")
+            if elapsed_time < duration:
+                print(f"Payment not yet received, checking again in {interval} seconds...")
                 Timer(interval, check_and_reschedule).start()
             else:
-                print("Stopping further checks as payment was successful.")
-        else:
-            # If payment is still not done after the duration, delete the order and payment link
-            delete_order_and_payment_link(user_id, order_id, payment_intent_id)
-            print(f"Payment not received within {duration} seconds, order {order_id} and payment link deleted.")
+                # If payment is still not done after the duration, delete the order and payment link
+                delete_order_and_payment_link(user_id, order_id, payment_intent_id)
+                print(f"Payment not received within {duration} seconds, order {order_id} and payment link deleted.")
 
-    check_and_reschedule()
+    print("Starting payment check...")
+    Timer(interval, check_and_reschedule).start()
 
 @api_view(['POST'])
 def add_user_order(request):
