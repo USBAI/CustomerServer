@@ -19,6 +19,17 @@ one.com{
     =kluret_password_jhuwygsgjkojhbejdfxuhiodkgeju4589rfhojcgn
 }
 
+
+ernest@kluret.se{
+    'Kluret_jidwuea9h84oiwfdsjsruishh34hww9fu3f4wf082'
+}
+
+
+elias@kluret.se{
+    'Kluret_dijwouidsfh8038wrfjdkiw'
+}
+
+
 bolag@kluret.se{
     "kluret_password_jhuwygkhogfuxtdycuvhigucfyscgn"
 }
