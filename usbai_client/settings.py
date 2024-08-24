@@ -54,6 +54,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:3002",
     "https://usbai.org",
     'https://www.kluret.se',
     "https://usbai.vercel.app",
