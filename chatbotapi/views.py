@@ -1,41 +1,12 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import openai
 import re
+from groq import Groq
 
-# Set your OpenAI API key
-openai.api_key = "sk-proj-Q1JLGoe7A3rRoZaqyUh9T3BlbkFJv7YuuWTvZccPiUAyp9Ji"
-
-product_data = [
-    {
-        "id": 1,
-        "category": "Mobile_phones",
-        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Mobile_phones/Mobile_phones",
-        "indexes": {
-            "start": 1,
-            "end": 10515
-        }
-    },
-    {
-        "id": 2,
-        "category": "Mobile_phone_case",
-        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Mobile_phone_case/Mobile_phone_case",
-        "indexes": {
-            "start": 1,
-            "end": 16000
-        }
-    },
-    {
-        "id": 3,
-        "category": "Camera_Phone_Accessories",
-        "api": "https://webnodes-1ac3b80d6a1c.herokuapp.com/Camera_Phone_Accessories/Camera_Phone_Accessories",
-        "indexes": {
-            "start": 1,
-            "end": 263
-        }
-    }
-]
+# Initialize the Groq client with your API key
+API_KEY = "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"
+client = Groq(api_key=API_KEY)
 
 @csrf_exempt
 def chatbot_api(request):
@@ -50,9 +21,6 @@ def chatbot_api(request):
             print("Received user input:", user_input)
             print("Received user history:", user_history)
 
-            # Define product categories
-            product_categories = ", ".join([category["category"] for category in product_data])
-
             prompt_tuning = f'''
                 Your name is Kluret.
                 You are Kluret, an advanced AI Search Engine in Sweden, capable of performing search engine tasks in Sweden only but for now you can assist users to find products online. In the future, you will be more powerful to find products on the Swedish internet since we are still working on the computer nodes network.
@@ -66,7 +34,7 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: all product that can be bougt online like eccommerce products. 
+                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: all product that can be bought online like e-commerce products. 
 
                 - If the user specifies a product name, respond directly with information about that product, including its category. Use the format ((product name)) for the product and [[category]] for the category.
                 - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary.
@@ -116,21 +84,26 @@ def chatbot_api(request):
             '''
 
             # Indicate that the API call is being made
-            print("Making API call to OpenAI...")
+            print("Making API call to Groq...")
 
-            # Create the completion using GPT-4
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
+            # Create the completion using Groq
+            completion = client.chat.completions.create(
+                model="llama3-70b-8192",
                 messages=[
                     {"role": "system", "content": prompt_tuning},
                     {"role": "user", "content": user_input},
-                ]
+                ],
+                temperature=1,
+                max_tokens=1024,
+                top_p=1,
+                stream=True,
+                stop=None,
             )
 
-            # Extract output text from response
-            output_text = response["choices"][0]["message"]["content"]
-
-            # Print the response from OpenAI for debugging
+            # Collect and print the streaming response
+            output_text = ""
+            for chunk in completion:
+                output_text += chunk.choices[0].delta.content or ""
             print('AI Response output_text:', output_text)
 
             # Extract product category and name from the response
@@ -140,24 +113,11 @@ def chatbot_api(request):
             product_name = product_info.group(1) if product_info else 'Unknown'
             product_category = category_info.group(1) if category_info else 'Unknown'
 
-            # Find the API endpoint for the product category
-            api_endpoint = None
-            start_index = None
-            end_index = None
-            for category in product_data:
-                if category['category'] == product_category:
-                    api_endpoint = category['api']
-                    start_index = category['indexes']['start']
-                    end_index = category['indexes']['end']
-
             # Initialize additional_data with 'open' set to False
             additional_data = {
                 'category': product_category,
                 'product': product_name,
-                'open': False,
-                'api_endpoint': api_endpoint,
-                'start': start_index,
-                'end': end_index
+                'open': False
             }
 
             # Check if product name is found
