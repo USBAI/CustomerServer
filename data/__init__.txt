@@ -39,6 +39,10 @@ bolag@kluret.se{
     "kluret_password_jhuwygkhogfuxtdycuvhigucfyscgn"
 }
 
+
+bolag@kluret.se//HEROKU{
+    "wpuiodsjer__hofsug3hTrW985r39885839945rughejoasv9cuh3u"
+}
 ratsit{
     bolag@kluret.se
     [
