@@ -55,24 +55,23 @@ def chatbot_api(request):
                 - Identifying the product name   correctly.
                 - Setting the 'open' attribute to True if the product is found.
 
-                The user's last input was about finding a product. Your response should focus on confirming the product and its category. Here is an example of how you should structure your responses:
+                The user's last input was about finding a product. Your response should focus on confirming the product and its. Here is an example of how you should structure your responses:
 
                 - User input: "I am looking for a black iPhone 13 around 7000kr."
-                - Correct response: "You are looking for a black ((iPhone 13)) around 7000kr in the [[Mobile_phones]] category."
+                - Correct response: make a response but include the product that it available"((iPhone 13))"
 
                 If a product name is provided:
-                - Confirm the product name and category in your response.
+                - Confirm the product name in your response.
                 - Include the product name using ((product name)).
-                - Include the category using [[category]].
 
                 If the product is found, return the product details and set 'open' to True in the response.
 
                 Additional instructions:
-                - Always provide the product name and category in the response.
+                - Always provide the product name.
                 - Do not repeat greetings or introductory phrases if the conversation has already started.
                 - Maintain a coherent and contextually appropriate dialogue.
 
-                If the user expresses interest in a product and you identify the product name and category, set 'open' to True. Your response should be informative and focused on the product the user wants to buy.
+                If the user expresses interest in a product and you identify the product name, set 'open' to True. Your response should be informative and focused on the product the user wants to buy.
 
                 Do not ask about:
                 - Storage capacities.
