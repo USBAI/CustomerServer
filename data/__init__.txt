@@ -39,9 +39,53 @@ bolag@kluret.se{
     "kluret_password_jhuwygkhogfuxtdycuvhigucfyscgn"
 }
 
+bolag@kluret.se/linkedin{
+    "ouwgsdhfuw9awrishdifuqwe9rsuf_d284hrdsfJJJs"
+}
+bolag@kluret.se/walmart{
+    "N4r!V8x$eLz@7"
+}
+
+bolag@kluret/aws{
+    "jiodsuhgodf_inieIIjd32dw48f9efhg9er"
+
+    "KluretEngine"
+
+    "-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAqzu6OLeBzVSMv8NmozIhHnXv5AjRhYoHhtn9Hm9e7aq/rbIt
+JHzIWOCbzm005KuNOhmED6a0v7dt0i6wPpJVi1oVrtTgNsZe6arEWMxEXXT3q4jY
+0DmPqToKrip2nPVnxbhULmNSBf7SVVyLZewUhMN8YOK3ZCLleb+HqQJEpqqbvEeu
+yrrnictjIGmYvqK4qANEFLBygLPu6eDI5T3b6TmN2JozBqGJrLVYnQc4n7U6mnWW
+FEAkBlP3ZbokB/RqrLp4xILTAHuLxmyj9MdbnUp5Ouv/F0ckdYGdjsBTScpPTatu
+GGVDBUgXCx/MPz5H5JD4cU8B25HmKz+IiNBIMwIDAQABAoIBAEp9ey99NSx74Zby
+jE3mWt4DdE6BP5SWTVvurNx2mpdNtoD7iAPdfNKdM2qDu4TW1GM4AmlEnlDgnRfY
+U7eEtU4f7FrYJInvlg6UyUHP6tW1MqEesSM0RzjZFRhbRKpXX8N1wrlDX8VX62xT
+DBlUsEBpQkxrlFgtjiJ+nad6Yx8VVullv4pC6VMmFHF8wM07sR4yLk0ahedHLQRe
+54CeFxXtNu8NwAw6PfY0z4MxLKgHOpHXnDSArkhx1Rcd1SIXh5bDETIGSmtTN43w
+FjW1M/EfPvflpfPymYW4542QdYPIi+yLcRmoF3ouo2/7A6C9Jx/Oy6rTu2wTE8L+
+S/VhaWECgYEA09jA0gTcizS1GngHlaq3ehiyq+Q1m+7GlyVZrAD5O5QCp98IZ90c
+wwPPXI47wIK8BRVvfNx4eIhiVZ2WmQFVLDv0wQP5JVMTLKlyra2sDS5lBGhcqP9C
+sJcoZ8m1GoO2AXUeWkca2HeqQfxWMm7LcLGP/0lt6FrbWXxScwyCE8kCgYEAzuwD
+6vEy3BJJTtJJmop1k48WcKaj3VMCJ3smTJN51x/bUdT2tgsFt5alPw+0W5ogyNMS
+ATAxh2KS7CPPK9iNYMG95/qoD3cocu3bMpWptA7cZ4XaZ5bRdHVSm5c/0BdAbldY
+NeAKviXnjkb+cEc4R2DH8QGGbKKK6V332b17ohsCgYBBgLveNHKc+GcnEAYIWQjy
+T8CvNZj95g6xnXLkpEhsC4/mqCfJNa02/26Wh8Qh+kp4p/AZA3Kckk8Veeye0rKr
+Qr6jD79xswYywRIccZ7JVJcXjc1Y09SjFZoAvXWqBR+5w6Tm9SVv2VBjpspgPbHZ
+3o1Pujypo64/NRmpSSzPQQKBgQCxUztMROWECTu/i6C+CngWO2JMqdH14qQO949r
+wlqAy/Ek4K+IdEuy+Cumriuu8Je14oQkdouLbSNhsJJjDdKin4XCXmFV15TXYRUe
+9XkYMEAbi28OpQXcmopvgh+SkcqKhNm4WcZ7C3qzyA1WZQJK0RqnY9oyEN2gfgHg
+HGzuDwKBgQDH0EBEYxu8qpZEXs/jzoycdrL3rTamBTl/mms+fxafSZwR/ewC5DFp
+ovWBbUVrBS0XGF7D691UCnS4xnCOa4HiHTymzUOs74QTb5O4lDymTmiZanL9Qj4P
+45X+XVwD8vCbMyYoVyYflgd4OuckCCbr4oAlrsT9UXaTiq974rlsdg==
+-----END RSA PRIVATE KEY-----"
+}
+
+bolag@kluret.se/figma{
+    "osihfwhdfwhi48838rhfdYYdhssuu3"
+}
 
 bolag@kluret.se//HEROKU{
-    "wpuiodsjer__hofsug3hTrW985r39885839945rughejoasv9cuh3u"
+    "oudhousfsTTbdj__e3h8fwrfsdhkdof44r"
 }
 ratsit{
     bolag@kluret.se
@@ -67,4 +111,39 @@ heroku[
 
 openai[
     {kluret_password_oioubiuh0u9yrwhfjnfbhigvuy8urwojfbhvu}
+]
+
+
+
+
+
+
+
+
+
+
+
+
+[
+    Recovery codes
+The below codes are used to recover your account in case you lose access to your MFA authenticator.
+
+Save these recovery codes as securely as a password. We recommend using a password manager such as 1Password, KeePassXC, or bitwarden.
+
+If you cannot find these codes, you will lose access to your account.
+
+TDEA2JWFW3
+Y7FBDNJUGK
+GQB99BKV66
+ASFCCGT5AV
+ANUHBMQFFG
+36AXDBRZB8
+B2S3B8W2UF
+TG6G9XDQKG
+E3M7EYB53W
+UR5MJZVFCB
+
+Copy to clipboard
+Download
+I’ve saved my recovery codes
 ]
