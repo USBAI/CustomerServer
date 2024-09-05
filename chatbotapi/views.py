@@ -21,6 +21,7 @@ def chatbot_api(request):
             print("Received user input:", user_input)
             print("Received user history:", user_history)
 
+            # Construct the prompt to include user history
             prompt_tuning = f'''
                 Your name is Kluret.
                 You are Kluret, an advanced AI Search Engine in Sweden, capable of performing search engine tasks in Sweden only but for now you can assist users to find products online. In the future, you will be more powerful to find products on the Swedish internet since we are still working on the computer nodes network.
@@ -34,15 +35,15 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate category from these options: all product that can be bought online like e-commerce products. 
+                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate : all product that can be bought online like e-commerce products. 
 
-                - If the user specifies a product name, respond directly with information about that product, including its category. Use the format ((product name)) for the product and [[category]] for the category.
+                - If the user specifies a product name, respond directly with information about that product,. Use the format ((product name)).
                 - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary.
                 - If the product name is clear, do not ask for additional details like features, storage capacity, or brand preferences unless explicitly mentioned by the user.
 
                 Example responses:
-                - If the user says "I want to buy an iPhone 13": "You are looking for an ((iPhone 13)) in the [[Mobile_phones]] category."
-                - If the user says "I am looking for a black iPhone 13 around 7000kr": "You are looking for a black ((iPhone 13)) around 7000kr in the [[Mobile_phones]] category."
+                - If the user says "I want to buy an iPhone 13": you can mix up the producct name with some message the user to know that you found the product "((iPhone 13))"
+                - If the user says "I am looking for a black iPhone 13 around 7000kr": you can mix up the producct name with some message the user to know that you found the product"((iPhone 13)) then tell them to click on the view botton and use an emoju shoing down or an arrow pointing down where they shall click to view the products remober not this  → it shall point down you can use any emoji or pointer to poin down but not always make sure when you tell the user that you found the product tthen it shall be in ((the product name in here))"
 
                 Avoid these mistakes:
                 - Do not ask for storage capacity, features, or specific brand preferences unless the user mentions them.
@@ -51,7 +52,7 @@ def chatbot_api(request):
 
                 Focus on:
                 - Providing clear and concise responses.
-                - Identifying the product name and category correctly.
+                - Identifying the product name   correctly.
                 - Setting the 'open' attribute to True if the product is found.
 
                 The user's last input was about finding a product. Your response should focus on confirming the product and its category. Here is an example of how you should structure your responses:
@@ -80,7 +81,8 @@ def chatbot_api(request):
 
                 Only ask for clarification if the product name is unclear or ambiguous.
 
-                Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input.
+                Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input. 
+                Also, respond in a natural, conversational tone.
             '''
 
             # Indicate that the API call is being made
@@ -110,25 +112,39 @@ def chatbot_api(request):
             product_info = re.search(r'\(\((.*?)\)\)', output_text)
             category_info = re.search(r'\[\[(.*?)\]\]', output_text)
 
-            product_name = product_info.group(1) if product_info else 'Unknown'
-            product_category = category_info.group(1) if category_info else 'Unknown'
+            product_name = product_info.group(1) if product_info else None
+            product_category = category_info.group(1) if category_info else None
 
             # Initialize additional_data with 'open' set to False
             additional_data = {
-                'category': product_category,
-                'product': product_name,
+                'category': product_category or 'Unknown',
+                'product': product_name or 'Unknown',
                 'open': False
             }
 
             # Check if product name is found
-            if product_name != 'Unknown':
+            if product_name:
                 additional_data['open'] = True
+
+            # Clean up the response text by removing special formatting
+            cleaned_output_text = re.sub(r'\(\(.*?\)\)', lambda m: m.group(0).strip('()'), output_text)
+            cleaned_output_text = re.sub(r'\[\[.*?\]\]', lambda m: m.group(0).strip('[]'), cleaned_output_text)
+            cleaned_output_text = cleaned_output_text.replace('(( ', '').replace(' ))', '')
+            cleaned_output_text = cleaned_output_text.replace('[[ ', '').replace(' ]]', '')
 
             # Log the extracted product info for debugging
             print('Extracted product info:', product_name, product_category)
+            print('Cleaned AI Response:', cleaned_output_text)
 
-            # Return the response as JSON with additional_data
-            return JsonResponse({"response": output_text, "additional_data": additional_data})
+            # Update the user history with the latest response
+            updated_user_history = f"{user_history}\nUser: {user_input}\nAI: {cleaned_output_text.strip()}"
+
+            # Return the response as JSON with additional_data and updated_user_history
+            return JsonResponse({
+                "response": cleaned_output_text.strip(),
+                "additional_data": additional_data,
+                "updated_user_history": updated_user_history
+            })
 
         except Exception as e:
             print("Exception occurred:", e)  # Print exception details for debugging
