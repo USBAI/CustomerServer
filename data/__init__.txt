@@ -25,6 +25,11 @@ openai{
     "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"
 }
 
+wikipedia{
+    "jjhudouligjlhpcoulwjsphodusHHswbdwidf_9dj4"
+    "Kluret"
+}
+
 ernest@kluret.se{
     'Kluret_jidwuea9h84oiwfdsjsruishh34hww9fu3f4wf082'
 }
