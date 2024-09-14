@@ -43,7 +43,9 @@ elias@kluret.se{
 bolag@kluret.se{
     "kluret_password_jhuwygkhogfuxtdycuvhigucfyscgn"
 }
-
+bolag@kluret.se/insta{
+    "Kluret_instagram_mdwuh9dkjfershpdwjpfrfienwji"
+}
 bolag@kluret.se/linkedin{
     "ouwgsdhfuw9awrishdifuqwe9rsuf_d284hrdsfJJJs"
 }

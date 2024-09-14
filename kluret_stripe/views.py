@@ -26,10 +26,10 @@ class CollectDataView(APIView):
         price = stripe.Price.create(
             product=product.id,
             unit_amount=int(total_cost * 100),  # Convert dollars to cents
-            currency='Sek',
+            currency='sek',
         )
 
-        # Create a payment link
+        # Create a payment link with shipping address collection only for Sweden
         try:
             payment_link = stripe.PaymentLink.create(
                 line_items=[
@@ -38,6 +38,9 @@ class CollectDataView(APIView):
                         'quantity': 1,  # Use total_products as quantity
                     },
                 ],
+                shipping_address_collection={
+                    'allowed_countries': ['SE']  # Only allow shipping within Sweden
+                }
             )
 
             # Return the payment link URL to the frontend
