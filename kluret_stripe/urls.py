@@ -1,7 +1,7 @@
-# kluret_stripe/urls.py
 from django.urls import path
-from .views import CollectDataView
+from .views import create_payment_and_poll_status
 
 urlpatterns = [
-    path('collect-data/', CollectDataView.as_view(), name='collect-data'),
+    # No need for 'as_view()' here because it's a function-based view
+    path('collect-data/', create_payment_and_poll_status, name='collect-data'),
 ]

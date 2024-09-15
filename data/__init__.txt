@@ -1,6 +1,7 @@
 stripe={
     ="Kluret_password_jjihoadkjfwhosdfddhe2uhdufh"
     ="sqcg-omml-mpmw-hedh-xngk"
+    wh="whsec_9kfdlR7UdzvDCg0mbdW2xQokbtrLaIhh"
     pu='pk_live_51PRfSZCZLHzBAOdTZTnLqhcUrEIk9vWY9zfnlbh51HiHf3SnRfQ6gUSlZbqhF9BwLmM3QxPGwydIbwAllriqQ4OR00vOKxMn4g'
     ='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'
 }

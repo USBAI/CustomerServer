@@ -1,9 +1,6 @@
 import time
 import threading
 import stripe
-import os
-import firebase_admin
-from firebase_admin import credentials, db
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
@@ -12,24 +9,6 @@ import json
 stripe.api_key = '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'
 stripe_webhook_secret = 'whsec_9kfdlR7UdzvDCg0mbdW2xQokbtrLaIhh'
 
-# Path to Firebase credentials JSON file
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
-
-# Initialize Firebase Admin SDK
-def initialize_firebase():
-    if not firebase_admin._apps:  # Avoid re-initialization if already initialized
-        try:
-            cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-            firebase_admin.initialize_app(cred, {
-                'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/'
-            })
-            print("Firebase initialized successfully.")
-        except FileNotFoundError as e:
-            print(f"Firebase credentials file not found: {e}")
-            exit(1)
-
-if not firebase_admin._apps:
-    initialize_firebase()
 
 @csrf_exempt
 def create_payment_and_poll_status(request):
@@ -37,7 +16,7 @@ def create_payment_and_poll_status(request):
         try:
             # Step 1: Parse the request data
             data = json.loads(request.body)
-            user_id = data.get('user_id')  # This is the "User-ID"
+            user_id = data.get('user_id')
             product_description = data.get('product_description')
             total_cost = float(data.get('total_cost'))
             total_products = int(data.get('total_products'))
@@ -79,7 +58,7 @@ def create_payment_and_poll_status(request):
             print(f"Payment link created: {payment_link.url}")
 
             # Start background thread to poll for payment status
-            thread = threading.Thread(target=poll_payment_status, args=(payment_link.id, user_id))
+            thread = threading.Thread(target=poll_payment_status, args=(payment_link.id,))
             thread.start()
 
             return JsonResponse(response_data)
@@ -98,7 +77,8 @@ def create_payment_and_poll_status(request):
         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
 
-def poll_payment_status(payment_link_id, user_id):
+def poll_payment_status(payment_link_id):
+    # Step 6: Polling the payment link status every second, up to 1000 retries
     retries = 1000
     while retries > 0:
         retries -= 1
@@ -115,14 +95,6 @@ def poll_payment_status(payment_link_id, user_id):
                     # Disable the payment link after successful payment
                     stripe.PaymentLink.modify(payment_link_id, active=False)
                     print(f"Payment for link {payment_link_id} has been paid and deactivated.")
-
-                    # Fetch user name from Kluret_Users using User-ID
-                    user_name = fetch_user_name_by_user_id(user_id)
-                    if user_name:
-                        # Move paid products from user's cart to "paid_products"
-                        update_firebase_after_payment(user_name, payment_link_id)
-                    else:
-                        print(f"User with ID {user_id} not found in Kluret_Users.")
                     break
                 else:
                     print(f"Payment link {payment_link_id} is not yet paid. Status: {session['payment_status']}")
@@ -137,53 +109,3 @@ def poll_payment_status(payment_link_id, user_id):
 
     if retries == 0:
         print(f"Payment link {payment_link_id} has not been paid after 1000 retries.")
-
-
-# Updated fetch_user_name_by_user_id function
-def fetch_user_name_by_user_id(user_id):
-    """
-    Fetch the username (folder) by their User-ID from Kluret_Users.
-    """
-    kluret_users_ref = db.reference('All_Users/Kluret_Users')
-    kluret_users = kluret_users_ref.get()
-
-    if kluret_users:
-        for user_name, user_data in kluret_users.items():
-            # Check if 'User-ID' exists in the folder and matches the provided user_id
-            if isinstance(user_data, dict) and 'User-ID' in user_data:
-                if user_data['User-ID'] == user_id:
-                    print(f"Found matching user: {user_name} with User-ID: {user_id}")
-                    return user_name  # Return the folder name (e.g., 'bolagatkluredotse')
-            else:
-                print(f"No 'User-ID' found in folder {user_name}")
-
-    print(f"No matching user found for User-ID: {user_id}")
-    return None
-
-
-def update_firebase_after_payment(user_name, payment_link_id):
-    # Fetch the user's cart from Firebase using the username
-    ref = db.reference(f'All_Users/Kluret_Users/{user_name}/MyCart')
-    cart_items = ref.get()
-
-    if cart_items:
-        # Debug: Print cart items before proceeding
-        print(f"Cart items for user {user_name}: {cart_items}")
-
-        # Create or get the "paid_products" node for the user
-        paid_products_ref = db.reference(f'All_Users/Kluret_Users/{user_name}/paid_products')
-        paid_products = paid_products_ref.get()
-
-        if not paid_products:
-            paid_products = []
-
-        # Move all cart items to "paid_products"
-        for key, item in cart_items.items():
-            paid_products_ref.push(item)
-
-        # Clear the user's cart after moving the items
-        ref.delete()
-        print(f"All items in the cart for user {user_name} have been moved to 'paid_products'.")
-
-    else:
-        print(f"No cart items found for user {user_name}.")
