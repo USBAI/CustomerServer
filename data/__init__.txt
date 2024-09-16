@@ -47,6 +47,9 @@ bolag@kluret.se{
 bolag@kluret.se/insta{
     "Kluret_instagram_mdwuh9dkjfershpdwjpfrfienwji"
 }
+bolag@kluret.se/facebook{
+    "Kluret_facebook_kdeek29wsdjfofwjrh9jrwk"
+}
 bolag@kluret.se/linkedin{
     "ouwgsdhfuw9awrishdifuqwe9rsuf_d284hrdsfJJJs"
 }
