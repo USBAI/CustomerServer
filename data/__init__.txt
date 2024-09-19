@@ -15,8 +15,7 @@ github{
     'kluret_password_nkjbhvyduwifjoiuvyfdfbuniwds'
 }
 
-one.com{
-    eliasnhunzwe@
+one.com/bolag@kluret.se{
     =kluret_password_jhuwygsgjkojhbejdfxuhiodkgeju4589rfhojcgn
 }
 

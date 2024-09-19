@@ -82,6 +82,8 @@ def chatbot_api(request):
 
                 Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input. 
                 Also, respond in a natural, conversational tone.
+
+                rember to use the laguage that the user was using to chat with you!
             '''
 
             # Indicate that the API call is being made
