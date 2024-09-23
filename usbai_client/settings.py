@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'kluret_stripe',
     'AddCart',
     'Users_Order',
+    'Kluretworkflow',
 ]
 
 MIDDLEWARE = [
