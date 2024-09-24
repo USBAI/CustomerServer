@@ -4,6 +4,12 @@ from rest_framework import status
 import firebase_admin
 from firebase_admin import credentials, db
 import os
+from twilio.rest import Client
+
+# Twilio configuration
+TWILIO_ACCOUNT_SID = 'ACd0f9c45cb4f7904a51b4c6412d25bc68'
+TWILIO_AUTH_TOKEN = 'dc2b567d27a0fe3b9c9606fdffc329e4'
+TWILIO_PHONE_NUMBER = '+17722131346'
 
 # Path to Firebase credentials JSON file
 FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
@@ -36,10 +42,37 @@ class EmailListCreate(APIView):
 class VisitorCreate(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            # Reference to the Firebase database
+            # Reference to the Firebase database for visitors
             ref = db.reference('visitors')
-            # Save the visitor info in Firebase
+            # Save the current visitor info in Firebase
             new_visitor_ref = ref.push({'timestamp': request.data.get('timestamp')})
+            
+            # Retrieve the total number of visitors after saving
+            total_visitors = ref.get()
+            total_visitor_count = len(total_visitors) if total_visitors else 0
+
+            # Send SMS via Twilio
+            self.send_sms(total_visitor_count)
+
             return Response({'message': 'Visitor recorded successfully'}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def send_sms(self, total_visitor_count):
+        try:
+            # Initialize Twilio client
+            client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+            # Compose the SMS message
+            message_body = f"Hello Kluret, your platform currently has {total_visitor_count} visitors."
+
+            # Send the SMS to the specified phone number
+            message = client.messages.create(
+                body=message_body,
+                from_=TWILIO_PHONE_NUMBER,
+                to='+46727759188'
+            )
+
+            print(f"SMS sent successfully: {message.sid}")
+        except Exception as e:
+            print(f"Error sending SMS: {e}")
