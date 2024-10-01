@@ -79,3 +79,31 @@ class VisitorCreate(APIView):
             print(f"WhatsApp message sent successfully: {message.sid}")
         except Exception as e:
             print(f"Error sending WhatsApp message: {e}")
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # Reference to the Firebase database for visitors
+            ref = db.reference('visitors')
+            
+            # Retrieve the total number of visitors
+            total_visitors = ref.get()
+            total_visitor_count = len(total_visitors) if total_visitors else 0
+
+            return Response({'total_visitors': total_visitor_count}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# Path to Firebase credentials JSON file for the first Firebase Realtime Database
+FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
+
+# Initialize Firebase Admin SDK for the first Realtime Database
+try:
+    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/',
+        'storageBucket': 'users-95da3.appspot.com'  # Replace with your actual Firebase Storage bucket
+    })
+except FileNotFoundError as e:
+    print(f"Firebase credentials file not found: {e}")
+except Exception as e:
+    print(f"Error initializing Firebase Admin SDK: {str(e)}")
