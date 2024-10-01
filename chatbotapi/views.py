@@ -3,10 +3,28 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import re
 from groq import Groq
+import firebase_admin
+from firebase_admin import credentials, db
+import os
 
 # Initialize the Groq client with your API key
 API_KEY = "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"
 client = Groq(api_key=API_KEY)
+
+# Initialize Firebase Admin SDK for the second Realtime Database
+FIREBASE_CREDENTIALS_FOR_TASK_PATH = os.getenv('FIREBASE_CREDENTIALS_FOR_TASK_PATH')  # Assuming you have set the path in the environment
+
+try:
+    cred_task = credentials.Certificate(FIREBASE_CREDENTIALS_FOR_TASK_PATH)
+    firebase_admin.initialize_app(cred_task, {
+        'databaseURL': 'https://bolagdb-c40e2-default-rtdb.europe-west1.firebasedatabase.app/',
+        'storageBucket': 'bolagdb-c40e2.appspot.com'
+    }, name='bolagdb')
+except FileNotFoundError as e:
+    print(f"Firebase credentials file for tasks not found: {e}")
+except Exception as e:
+    print(f"Error initializing Firebase Admin SDK for tasks: {str(e)}")
+
 
 @csrf_exempt
 def chatbot_api(request):
@@ -16,6 +34,7 @@ def chatbot_api(request):
             data = json.loads(request.body)
             user_input = data.get('user_input', '')
             user_history = data.get('user_history', '')
+            user_id = data.get('user_id', '')  # Expecting the user_id in the request data
 
             # Print the received data for debugging
             print("Received user input:", user_input)
@@ -86,10 +105,8 @@ def chatbot_api(request):
                 rember to use the laguage that the user was using to chat with you!
             '''
 
-            # Indicate that the API call is being made
             print("Making API call to Groq...")
 
-            # Create the completion using Groq
             completion = client.chat.completions.create(
                 model="llama3-70b-8192",
                 messages=[
@@ -103,44 +120,44 @@ def chatbot_api(request):
                 stop=None,
             )
 
-            # Collect and print the streaming response
             output_text = ""
             for chunk in completion:
                 output_text += chunk.choices[0].delta.content or ""
             print('AI Response output_text:', output_text)
 
-            # Extract product category and name from the response
             product_info = re.search(r'\(\((.*?)\)\)', output_text)
             category_info = re.search(r'\[\[(.*?)\]\]', output_text)
 
             product_name = product_info.group(1) if product_info else None
             product_category = category_info.group(1) if category_info else None
 
-            # Initialize additional_data with 'open' set to False
             additional_data = {
                 'category': product_category or 'Unknown',
                 'product': product_name or 'Unknown',
                 'open': False
             }
 
-            # Check if product name is found
             if product_name:
                 additional_data['open'] = True
 
-            # Clean up the response text by removing special formatting
             cleaned_output_text = re.sub(r'\(\(.*?\)\)', lambda m: m.group(0).strip('()'), output_text)
             cleaned_output_text = re.sub(r'\[\[.*?\]\]', lambda m: m.group(0).strip('[]'), cleaned_output_text)
             cleaned_output_text = cleaned_output_text.replace('(( ', '').replace(' ))', '')
             cleaned_output_text = cleaned_output_text.replace('[[ ', '').replace(' ]]', '')
 
-            # Log the extracted product info for debugging
-            print('Extracted product info:', product_name, product_category)
-            print('Cleaned AI Response:', cleaned_output_text)
-
-            # Update the user history with the latest response
             updated_user_history = f"{user_history}\nUser: {user_input}\nAI: {cleaned_output_text.strip()}"
 
-            # Return the response as JSON with additional_data and updated_user_history
+            # Save chat history to Firebase Realtime Database
+            app = firebase_admin.get_app('bolagdb')
+            ref = db.reference(f'Bolag_Kluret/Chat_History/{user_id}', app=app)  # Save history under user_id
+            ref.push({
+                'user_input': user_input,
+                'ai_response': cleaned_output_text.strip(),
+                'history': updated_user_history,
+                'product': product_name,
+                'category': product_category
+            })
+
             return JsonResponse({
                 "response": cleaned_output_text.strip(),
                 "additional_data": additional_data,
@@ -148,9 +165,34 @@ def chatbot_api(request):
             })
 
         except Exception as e:
-            print("Exception occurred:", e)  # Print exception details for debugging
+            print("Exception occurred:", e)
             return JsonResponse({"error": str(e)}, status=500)
 
     else:
-        print("Request method is not POST")  # Indicate incorrect request method
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+
+
+# New API to fetch the chat histories for a given user
+@csrf_exempt
+def get_chat_history(request):
+    if request.method == 'GET':
+        try:
+            user_id = request.GET.get('user_id', '')  # Get the user_id from the request query parameter
+
+            if not user_id:
+                return JsonResponse({"error": "user_id is required"}, status=400)
+
+            app = firebase_admin.get_app('bolagdb')
+            ref = db.reference(f'Bolag_Kluret/Chat_History/{user_id}', app=app)
+
+            chat_history = ref.get()
+
+            if not chat_history:
+                return JsonResponse({"status": "failed", "message": "No chat history found for this user"}, status=404)
+
+            return JsonResponse({"status": "success", "chat_history": chat_history})
+
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "failed", "message": "Only GET requests are allowed for fetching chat history"}, status=405)
