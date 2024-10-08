@@ -21,4 +21,5 @@ urlpatterns = [
     path('addcart/', include('AddCart.urls')), 
     path('users_order/', include('Users_Order.urls')),
     path('kluretworkflow/', include('Kluretworkflow.urls')),
+    path('searchengine_tracking/', include('searchengine_tracting.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

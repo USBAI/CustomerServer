@@ -57,6 +57,41 @@ def get_all_user_names(request):
 
     return JsonResponse({"status": "failed", "message": "Only GET requests are allowed for fetching user names"})
 
+@csrf_exempt
+def get_all_chats(request):
+    if request.method == 'GET':
+        try:
+            # Get a reference to the Firebase Realtime Database for the first database
+            app = firebase_admin.get_app('bolagdb')
+            ref = db.reference('Bolag_Kluret/Chat_History', app=app)
+
+            # Get all users' data
+            all_users = ref.get()
+
+            # Count the total number of chat blocks
+            total_chats = len(all_users) if all_users else 0
+
+            if all_users:
+                # Convert any sets in the all_users dictionary to lists
+                all_users_serializable = {}
+                for key, value in all_users.items():
+                    if isinstance(value, set):
+                        all_users_serializable[key] = list(value)  # Convert set to list
+                    elif isinstance(value, dict):  # If value is a dictionary, ensure all sets are converted
+                        all_users_serializable[key] = {k: list(v) if isinstance(v, set) else v for k, v in value.items()}
+                    else:
+                        all_users_serializable[key] = value  # Keep value as is
+
+                return JsonResponse({"status": "success", "id": all_users_serializable, "total_chats": total_chats})
+            else:
+                return JsonResponse({"status": "failed", "message": "chat history not found", "total_chats": total_chats})
+
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e), "total_chats": 0})
+
+    return JsonResponse({"status": "failed", "message": "Only GET requests are allowed for fetching user names"})
+
+
 
 # New function to retrieve tasks from the second Firebase Realtime Database using FIREBASE_CREDENTIALS_FOR_TASK_PATH
 @csrf_exempt

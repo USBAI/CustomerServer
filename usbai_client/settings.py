@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'AddCart',
     'Users_Order',
     'Kluretworkflow',
+    'searchengine_tracting',
 ]
 
 MIDDLEWARE = [
