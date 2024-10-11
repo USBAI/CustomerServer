@@ -54,15 +54,16 @@ def chatbot_api(request):
                 The user's last input was: "{user_input}"
                 Respond appropriately to the user's last input, maintaining context and ensuring a smooth conversational experience.
 
-                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate : all product that can be bought online like e-commerce products. 
+                Pay close attention to details in the conversation. If the user expresses interest in buying something, understand the product they want and identify the appropriate: all products that can be bought online like e-commerce products. 
 
-                - If the user specifies a product name, respond directly with information about that product,. Use the format ((product name)).
-                - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary.
+                - If the user specifies a product name, respond directly with information about that product. Use the format ((product name)).
+                - If the user specifies a price range, acknowledge it but do not ask for further details unless necessary. Add the price using <<price number>> without including the currency symbol.
+                - Filter the product by both name and price: ((product name)) and <<price number>>. Set 'pricing' to True if a price is provided.
                 - If the product name is clear, do not ask for additional details like features, storage capacity, or brand preferences unless explicitly mentioned by the user.
 
                 Example responses:
-                - If the user says "I want to buy an iPhone 13": you can mix up the producct name with some message the user to know that you found the product "((iPhone 13))"
-                - If the user says "I am looking for a black iPhone 13 around 7000kr": you can mix up the producct name with some message the user to know that you found the product"((iPhone 13)) then tell them to click on the view botton and use an emoju shoing down or an arrow pointing down where they shall click to view the products remober not this  → it shall point down you can use any emoji or pointer to poin down but not always make sure when you tell the user that you found the product tthen it shall be in ((the product name in here))"
+                - If the user says "I want to buy an iPhone 13": you can mix up the product name with some message to let the user know that you found the product "((iPhone 13))"
+                - If the user says "I am looking for a black iPhone 13 around 7000kr": you can mix up the product name with some message to let the user know that you found the product "((iPhone 13))" and wrap the price in <<7000>>.
 
                 Avoid these mistakes:
                 - Do not ask for storage capacity, features, or specific brand preferences unless the user mentions them.
@@ -71,38 +72,18 @@ def chatbot_api(request):
 
                 Focus on:
                 - Providing clear and concise responses.
-                - Identifying the product name   correctly.
-                - Setting the 'open' attribute to True if the product is found.
-
-                The user's last input was about finding a product. Your response should focus on confirming the product and its. Here is an example of how you should structure your responses:
-
-                - User input: "I am looking for a black iPhone 13 around 7000kr."
-                - Correct response: make a response but include the product that it available"((iPhone 13))"
-
-                If a product name is provided:
-                - Confirm the product name in your response.
-                - Include the product name using ((product name)).
-
-                If the product is found, return the product details and set 'open' to True in the response.
+                - Identifying the product name and price correctly.
+                - Setting the 'open' attribute to True if the product is found and 'pricing' to True if a price is provided.
 
                 Additional instructions:
-                - Always provide the product name.
+                - Always provide the product name and price if available.
                 - Do not repeat greetings or introductory phrases if the conversation has already started.
                 - Maintain a coherent and contextually appropriate dialogue.
-
-                If the user expresses interest in a product and you identify the product name, set 'open' to True. Your response should be informative and focused on the product the user wants to buy.
-
-                Do not ask about:
-                - Storage capacities.
-                - Additional features.
-                - Brand preferences.
-
-                Only ask for clarification if the product name is unclear or ambiguous.
 
                 Remember, your goal is to assist the user in finding products online and to provide accurate and relevant information based on their input. 
                 Also, respond in a natural, conversational tone.
 
-                rember to use the laguage that the user was using to chat with you!
+                Remember to use the language that the user was using to chat with you!
             '''
 
             print("Making API call to Groq...")
@@ -126,24 +107,26 @@ def chatbot_api(request):
             print('AI Response output_text:', output_text)
 
             product_info = re.search(r'\(\((.*?)\)\)', output_text)
-            category_info = re.search(r'\[\[(.*?)\]\]', output_text)
+            price_info = re.search(r'<<(\d+(\.\d+)?)>>', output_text)  # Updated regex for better matching
 
             product_name = product_info.group(1) if product_info else None
-            product_category = category_info.group(1) if category_info else None
+            product_price = price_info.group(1) if price_info else None
 
             additional_data = {
-                'category': product_category or 'Unknown',
                 'product': product_name or 'Unknown',
-                'open': False
+                'price': product_price or 'Unknown',
+                'open': False,
+                'pricing': False  # Set 'pricing' to False initially
             }
 
             if product_name:
                 additional_data['open'] = True
 
+            if product_price:
+                additional_data['pricing'] = True  # Set 'pricing' to True if price info is found
+
             cleaned_output_text = re.sub(r'\(\(.*?\)\)', lambda m: m.group(0).strip('()'), output_text)
-            cleaned_output_text = re.sub(r'\[\[.*?\]\]', lambda m: m.group(0).strip('[]'), cleaned_output_text)
-            cleaned_output_text = cleaned_output_text.replace('(( ', '').replace(' ))', '')
-            cleaned_output_text = cleaned_output_text.replace('[[ ', '').replace(' ]]', '')
+            cleaned_output_text = re.sub(r'<<.*?>>', lambda m: m.group(0).strip('<<>>'), cleaned_output_text)
 
             updated_user_history = f"{user_history}\nUser: {user_input}\nAI: {cleaned_output_text.strip()}"
 
@@ -155,7 +138,7 @@ def chatbot_api(request):
                 'ai_response': cleaned_output_text.strip(),
                 'history': updated_user_history,
                 'product': product_name,
-                'category': product_category
+                'price': product_price
             })
 
             return JsonResponse({

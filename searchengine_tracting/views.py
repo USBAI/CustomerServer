@@ -75,4 +75,23 @@ def product_search_tracking(request):
             print(f"Error tracking product search: {str(e)}")
             return JsonResponse({'error': 'Internal server error'}, status=500)
 
-    return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+    elif request.method == 'GET':
+        try:
+            # Get Firebase app instance
+            app = firebase_admin.get_app('bolagdb')
+            ref = db.reference('Bolag_Kluret/Searchengine_Tracking', app=app)
+
+            # Fetch all data from the database
+            all_data = ref.get()
+
+            if all_data is None:
+                return JsonResponse({'message': 'No data found'}, status=404)
+
+            # Return the data as a JSON response
+            return JsonResponse(all_data, safe=False, status=200)
+
+        except Exception as e:
+            print(f"Error fetching product search data: {str(e)}")
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+
+    return JsonResponse({'error': 'Only POST and GET requests are allowed'}, status=405)
