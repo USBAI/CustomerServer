@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Users_Order',
     'Kluretworkflow',
     'searchengine_tracting',
+    'auth_google',
 ]
 
 MIDDLEWARE = [

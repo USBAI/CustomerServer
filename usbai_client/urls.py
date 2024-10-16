@@ -22,4 +22,5 @@ urlpatterns = [
     path('users_order/', include('Users_Order.urls')),
     path('kluretworkflow/', include('Kluretworkflow.urls')),
     path('searchengine_tracking/', include('searchengine_tracting.urls')),
+    path('auth_google/', include('auth_google.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
