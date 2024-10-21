@@ -67,6 +67,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://usbaiclient-8c59f2a693e9.herokuapp.com",
     "https://webnode-9662dc9a689b.herokuapp.com",
     "https://usbai-client.onrender.com",
+    "https://usbaiclient-bc9c07737d7c.herokuapp.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -78,6 +79,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://webnodes-1ac3b80d6a1c.herokuapp.com",
     "https://usbaiclient-8c59f2a693e9.herokuapp.com",
     "https://webnode-9662dc9a689b.herokuapp.com",
+    "https://usbaiclient-bc9c07737d7c.herokuapp.com",
     "https://usbai-client.onrender.com",
 ]
 
