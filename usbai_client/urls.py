@@ -12,6 +12,7 @@ urlpatterns = [
     path('image_recognition/', include('openai_image.urls')),
     path('openai_image/', include('openai_image.urls')),
     path('api/', include('chatbotapi.urls')), 
+    path('chatbotapi_image_recognition/', include('chatbotapi_image_recognition.urls')), 
     path('products/', include('web_engine.urls')),
     path('users/', include('users.urls')),
     path('api/', include('kluret_user_id.urls')),

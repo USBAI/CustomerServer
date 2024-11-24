@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'Kluretworkflow',
     'searchengine_tracting',
     'auth_google',
+    'chatbotapi_image_recognition',
 ]
 
 MIDDLEWARE = [
