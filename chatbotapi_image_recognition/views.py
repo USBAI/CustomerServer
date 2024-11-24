@@ -2,10 +2,16 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import re
+import random
+import string
+import base64
 from groq import Groq
 import firebase_admin
 from firebase_admin import credentials, db
 import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 # Initialize the Groq client with your API key
 API_KEY = "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"
@@ -25,20 +31,44 @@ except FileNotFoundError as e:
 except Exception as e:
     print(f"Error initializing Firebase Admin SDK for tasks: {str(e)}")
 
+def encode_image_to_base64(image_path):
+    """
+    Encodes the image at the specified path to a Base64 string.
+    """
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
 @csrf_exempt
 def chatbot_api(request):
     if request.method == 'POST':
         try:
-            # Parse the JSON data from the request body
-            data = json.loads(request.body)
-            user_input = data.get('user_input', '')
-            image_url = data.get('image_url', None)  # Image URL provided as input
-            user_history = data.get('user_history', '')
-            user_id = data.get('user_id', '')
+            # Initialize variables
+            user_input = ''
+            user_history = ''
+            user_id = ''
+            image_path = None
+
+            # Check if the request contains files (multipart/form-data)
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']  # Access the uploaded image
+                print(image_file)
+                image_path = handle_uploaded_file(image_file)  # Save and retrieve the path of the uploaded image
+                user_input = request.POST.get('user_input', '')  # Extract additional fields from POST data
+                user_history = request.POST.get('user_history', '')
+                user_id = request.POST.get('user_id', '')
+            else:
+                # Parse JSON data from the request body
+                data = json.loads(request.body.decode('utf-8'))
+                user_input = data.get('user_input', '')
+                user_history = data.get('user_history', '')
+                user_id = data.get('user_id', '')
 
             # Validate input
-            if not image_url:
-                return JsonResponse({"error": "Image URL or Base64 data is required"}, status=400)
+            if not image_path:
+                return JsonResponse({"error": "Image file is required"}, status=400)
+
+            # Convert image to Base64
+            base64_image = encode_image_to_base64(image_path)
 
             # Combine system prompt into the user message
             prompt_tuning = f'''
@@ -65,21 +95,25 @@ def chatbot_api(request):
                 If the user asks about Kluret's internal functionality, respond with: "I'm sorry, I can't help you with that."
             '''
 
-            # Prepare the messages payload for Groq API
-            messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt_tuning + f"\n\nUser: {user_input}"},
-                        {"type": "image_url", "image_url": {"url": image_url}}
-                    ]
-                }
-            ]
-
             print("Making API call to Groq...")
-            completion = client.chat.completions.create(
+
+            # Send the Base64 image and text prompt to the Groq API
+            chat_completion = client.chat.completions.create(
                 model="llama-3.2-11b-vision-preview",
-                messages=messages,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt_tuning + f"\n\nUser: {user_input}"},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}",
+                                },
+                            },
+                        ],
+                    }
+                ],
                 temperature=1,
                 max_tokens=1024,
                 top_p=1,
@@ -88,7 +122,7 @@ def chatbot_api(request):
             )
 
             # Process the response
-            output_text = completion.choices[0].message.content
+            output_text = chat_completion.choices[0].message.content
             print("AI Response:", output_text)
 
             # Extract product details using regex
@@ -137,6 +171,19 @@ def chatbot_api(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+
+
+def handle_uploaded_file(image_file):
+    """
+    Handles the uploaded image file and returns the file path.
+    Saves the file temporarily with a randomly generated name.
+    """
+    # Generate a random filename with length between 20 and 100
+    random_filename = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(20, 100))) + os.path.splitext(image_file.name)[1]
+
+    # Save the image to a temporary file
+    file_path = default_storage.save(f'temp/{random_filename}', ContentFile(image_file.read()))
+    return default_storage.path(file_path)
 
 @csrf_exempt
 def get_chat_history(request):
