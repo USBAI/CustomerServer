@@ -12,11 +12,13 @@ API_KEY = "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"
 
 client = Groq(api_key=API_KEY)
 
-# Initialize Firebase Admin SDK for the second Realtime Database
-FIREBASE_CREDENTIALS_FOR_TASK_PATH = os.getenv('FIREBASE_CREDENTIALS_FOR_TASK_PATH')  # Assuming you have set the path in the environment
+# Absolute path to the Firebase credentials JSON file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'bolagdb-c40e2-firebase-adminsdk-y8rnh-3905b9b493.json')
+
 
 try:
-    cred_task = credentials.Certificate(FIREBASE_CREDENTIALS_FOR_TASK_PATH)
+    cred_task = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
     firebase_admin.initialize_app(cred_task, {
         'databaseURL': 'https://bolagdb-c40e2-default-rtdb.europe-west1.firebasedatabase.app/',
         'storageBucket': 'bolagdb-c40e2.appspot.com'
