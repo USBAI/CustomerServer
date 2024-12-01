@@ -10,12 +10,7 @@ import os
 # Initialize the Groq client with your API key
 API_KEY = "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"
 
-try:
-    # Explicitly ensure no unexpected kwargs
-    client = Groq(api_key=API_KEY)
-except TypeError as e:
-    print(f"Error initializing Groq client: {e}")
-    client = None  # Or handle it as appropriate
+client = Groq(api_key=API_KEY)
 
 # Initialize Firebase Admin SDK for the second Realtime Database
 FIREBASE_CREDENTIALS_FOR_TASK_PATH = os.getenv('FIREBASE_CREDENTIALS_FOR_TASK_PATH')  # Assuming you have set the path in the environment
