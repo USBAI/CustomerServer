@@ -17,7 +17,6 @@ except TypeError as e:
     print(f"Error initializing Groq client: {e}")
     client = None  # Or handle it as appropriate
 
-
 # Initialize Firebase Admin SDK for the second Realtime Database
 FIREBASE_CREDENTIALS_FOR_TASK_PATH = os.getenv('FIREBASE_CREDENTIALS_FOR_TASK_PATH')  # Assuming you have set the path in the environment
 
