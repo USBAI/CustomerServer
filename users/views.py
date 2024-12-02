@@ -2,21 +2,19 @@ import os
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import firebase_admin
-from firebase_admin import credentials, db
-import random, string
+from pymongo import MongoClient
+import random
+import string
 
-# Path to Firebase credentials JSON file
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
+# MongoDB connection settings
+MONGO_URI = "mongodb+srv://KluretUserDB:ojsgheotugfihjpeslufjpnöebkoNDEOwuflihsorufhgpdndxfouln@kluretai-users.bufni.mongodb.net/?retryWrites=true&w=majority&appName=KluretAI-Users"
+DB_NAME = "kluret_db"
+COLLECTION_NAME = "Kluret_Users"
 
-# Initialize Firebase Admin SDK
-try:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/'
-    })
-except FileNotFoundError as e:
-    print(f"Firebase credentials file not found: {e}")
+# Initialize MongoDB client
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+collection = db[COLLECTION_NAME]
 
 @csrf_exempt
 def register_user(request):
@@ -29,11 +27,9 @@ def register_user(request):
             if not email or not password:
                 return JsonResponse({"status": "failed", "message": "Email and password are required"})
 
-            # Get a reference to the Firebase Realtime Database
-            ref = db.reference('All_Users/Kluret_Users')
-
-            # Save data to Realtime Database
-            user_ref = ref.child(email.replace('.', 'dot').replace('@', 'at'))
+            # Check if user already exists
+            if collection.find_one({"email": email}):
+                return JsonResponse({"status": "failed", "message": "User already exists"})
 
             def generate_random_string(min_len, max_len):
                 length = random.randint(min_len, max_len)
@@ -43,10 +39,11 @@ def register_user(request):
 
             UserID = generate_random_string(20, 30)
 
-            print(UserID)
-            user_ref.set({
-                "User-ID": UserID,
+            # Insert user data into MongoDB
+            collection.insert_one({
+                "email": email,
                 "password": password,
+                "User-ID": UserID
             })
 
             return JsonResponse({"status": "success", "message": "User registered successfully"})
@@ -67,17 +64,12 @@ def login_authorizer(request):
             if not email or not password:
                 return JsonResponse({"status": "failed", "message": "Email and password are required"})
 
-            # Get a reference to the Firebase Realtime Database
-            ref = db.reference('All_Users/Kluret_Users')
+            # Find the user in MongoDB
+            user = collection.find_one({"email": email})
 
-            # Check if the user exists in the database
-            snapshot = ref.child(email.replace('.', 'dot').replace('@', 'at')).get()
-
-            if snapshot:
-                user_password = snapshot.get('password')
-                if user_password == password:
-                    user_id = snapshot.get('User-ID')
-                    return JsonResponse({"status": "success", "message": "User exists", "user_id": user_id})
+            if user:
+                if user['password'] == password:
+                    return JsonResponse({"status": "success", "message": "User exists", "user_id": user['User-ID']})
                 else:
                     return JsonResponse({"status": "failed", "message": "Incorrect password"})
             else:
@@ -98,18 +90,15 @@ def get_user_details(request):
             if not user_id:
                 return JsonResponse({"status": "failed", "message": "User ID is required"})
 
-            # Get a reference to the Firebase Realtime Database
-            ref = db.reference('All_Users/Kluret_Users')
+            # Find the user by User-ID in MongoDB
+            user = collection.find_one({"User-ID": user_id})
 
-            # Iterate through all users to find the user by User-ID
-            all_users = ref.get()
-            for email, user_data in all_users.items():
-                if user_data.get('User-ID') == user_id:
-                    return JsonResponse({
-                        "status": "success",
-                        "email": email.replace('dot', '.').replace('at', '@'),
-                        "password": user_data.get('password')
-                    })
+            if user:
+                return JsonResponse({
+                    "status": "success",
+                    "email": user['email'],
+                    "password": user['password']
+                })
 
             return JsonResponse({"status": "failed", "message": "User not found"})
 
