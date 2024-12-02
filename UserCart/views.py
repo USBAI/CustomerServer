@@ -1,22 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import firebase_admin
-from firebase_admin import credentials, db
+from pymongo import MongoClient
 import os
 
-# Path to Firebase credentials JSON file
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
+# MongoDB connection settings
+MONGO_URI = "mongodb+srv://KluretUserDB:ojsgheotugfihjpeslufjpnöebkoNDEOwuflihsorufhgpdndxfouln@kluretai-users.bufni.mongodb.net/?retryWrites=true&w=majority&appName=KluretAI-Users"  # Update this with your MongoDB URI
+DB_NAME = "kluret_db"
+CART_COLLECTION_NAME = "cart"
 
-# Initialize Firebase Admin SDK
-if not firebase_admin._apps:
-    try:
-        cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/'
-        })
-    except FileNotFoundError as e:
-        print(f"Firebase credentials file not found: {e}")
+# Initialize MongoDB client
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+cart_collection = db[CART_COLLECTION_NAME]
 
 class UserCartView(APIView):
     def post(self, request, *args, **kwargs):
@@ -27,29 +23,15 @@ class UserCartView(APIView):
             return Response({'error': 'UserID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Get a reference to the Firebase Realtime Database
-            ref = db.reference('All_Users/Kluret_Users')
-            all_users = ref.get()
+            # Query the cart collection to find all products for the given user_id
+            user_cart = cart_collection.find_one({"User-ID": user_id})
 
-            # Find the user with the given user_id
-            user_email = None
-            for email, user_info in all_users.items():
-                if user_info.get('User-ID') == user_id:
-                    user_email = email
-                    break
-
-            if user_email:
-                # User exists, fetch cart data if 'Cart' node exists
-                user_ref = ref.child(user_email)
-                cart_ref = user_ref.child('Cart')
-                cart_data = cart_ref.get()
-
-                if not cart_data:
-                    return Response({'error': 'Cart is empty or not available'}, status=status.HTTP_404_NOT_FOUND)
-
-                return Response(cart_data, status=status.HTTP_200_OK)
+            if user_cart and 'products' in user_cart:
+                # Return the cart products
+                return Response(user_cart['products'], status=status.HTTP_200_OK)
             else:
-                return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+                # Cart is empty or user doesn't exist in the cart collection
+                return Response({'error': 'Cart is empty or not available'}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(f"Error: {e}")  # Log the error to the server console
