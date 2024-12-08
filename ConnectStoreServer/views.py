@@ -95,3 +95,51 @@ def save_store_info(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method. Only POST is allowed.'}, status=405)
+
+
+@csrf_exempt
+def save_customer(request):
+    if request.method == 'POST':
+        try:
+            # Parse the JSON data from the request body
+            data = json.loads(request.body)
+            
+            store_id = data.get('store_id')  # The store ID to associate the customer with
+            customer_email = data.get('email')  # Email of the customer (required)
+
+            # Validate required fields
+            if not store_id or not customer_email:
+                return JsonResponse({'error': 'Store ID and customer email are required.'}, status=400)
+
+            # Find the store by store_id
+            store = connect_store_server_collection.find_one({'store_id': store_id})
+            if not store:
+                return JsonResponse({'error': 'Store not found.'}, status=404)
+
+            # Calculate the next customer index
+            current_customers = store.get('Customers', [])
+            next_index = len(current_customers) + 1
+
+            # Create the customer object
+            customer = {
+                'index': next_index,
+                'email': customer_email,
+                'name': data.get('name', ""),
+                'phone': data.get('phone', ""),
+                'location': data.get('location', ""),
+                'lastOrder': data.get('lastOrder', ""),
+                'orders': data.get('orders', ""),
+                'totalSpent': data.get('totalSpent', "")
+            }
+
+            # Add the customer to the Customers array
+            connect_store_server_collection.update_one(
+                {'store_id': store_id},
+                {'$push': {'Customers': customer}}
+            )
+
+            return JsonResponse({'message': 'Customer added successfully.', 'customer_index': next_index}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method. Only POST is allowed.'}, status=405)
