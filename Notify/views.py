@@ -1,9 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import firebase_admin
-from firebase_admin import credentials, db
-import os
+from pymongo import MongoClient
+from datetime import datetime
 from twilio.rest import Client
 
 # Twilio configuration
@@ -12,20 +11,13 @@ TWILIO_AUTH_TOKEN = 'dc2b567d27a0fe3b9c9606fdffc329e4'
 TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886'  # Twilio WhatsApp Sandbox number
 WHATSAPP_RECIPIENT_NUMBER = 'whatsapp:+46727759188'  # Verified WhatsApp recipient
 
-# Path to Firebase credentials JSON file
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
+# MongoDB configuration
+MONGO_URI = "mongodb+srv://KluretUserDB:ojsgheotugfihjpeslufjpnöebkoNDEOwuflihsorufhgpdndxfouln@kluretai-users.bufni.mongodb.net/?retryWrites=true&w=majority&appName=KluretAI-Users"
+DB_NAME = "kluret_db"
 
-# Initialize Firebase Admin SDK (Prevent reinitialization error)
-if not firebase_admin._apps:
-    try:
-        cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/'
-        })
-    except FileNotFoundError as e:
-        print(f"Firebase credentials file not found: {e}")
-    except Exception as e:
-        print(f"Error initializing Firebase Admin SDK: {e}")
+# Initialize MongoDB client
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
 
 class EmailListCreate(APIView):
     def post(self, request, *args, **kwargs):
@@ -34,10 +26,9 @@ class EmailListCreate(APIView):
             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Reference to the Firebase database
-            ref = db.reference('emails')
-            # Save the email in Firebase
-            new_email_ref = ref.push({'email': email})
+            # Insert email into MongoDB
+            emails_collection = db["emails"]
+            emails_collection.insert_one({'email': email, 'timestamp': datetime.utcnow()})
             return Response({'message': 'Email saved successfully'}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -45,14 +36,33 @@ class EmailListCreate(APIView):
 class VisitorCreate(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            # Reference to the Firebase database for visitors
-            ref = db.reference('visitors')
-            # Save the current visitor info in Firebase
-            new_visitor_ref = ref.push({'timestamp': request.data.get('timestamp')})
+            # Extract data from the request
+            timestamp = request.data.get('timestamp')
+            platform = request.data.get('platform')
+            language = request.data.get('language')
+            browser = request.data.get('browser')
+            latitude = request.data.get('latitude')
+            longitude = request.data.get('longitude')
+
+            # Validate required fields
+            if not timestamp or not platform or not language:
+                return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Insert visitor info into MongoDB collection "SiteTraffics"
+            site_traffics_collection = db["SiteTraffics"]
+            site_traffics_collection.insert_one({
+                'timestamp': timestamp,
+                'platform': platform,
+                'language': language,
+                'browser': browser,
+                'location': {
+                    'latitude': latitude,
+                    'longitude': longitude
+                }
+            })
             
-            # Retrieve the total number of visitors after saving
-            total_visitors = ref.get()
-            total_visitor_count = len(total_visitors) if total_visitors else 0
+            # Count the total number of visitors in the "SiteTraffics" collection
+            total_visitor_count = site_traffics_collection.count_documents({})
 
             # Send WhatsApp message via Twilio
             self.send_whatsapp_message(total_visitor_count)
@@ -82,28 +92,25 @@ class VisitorCreate(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            # Reference to the Firebase database for visitors
-            ref = db.reference('visitors')
-            
-            # Retrieve the total number of visitors
-            total_visitors = ref.get()
-            total_visitor_count = len(total_visitors) if total_visitors else 0
+            # Retrieve total number of visitors from the "SiteTraffics" collection
+            site_traffics_collection = db["SiteTraffics"]
+            total_visitor_count = site_traffics_collection.count_documents({})
 
             return Response({'total_visitors': total_visitor_count}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# Path to Firebase credentials JSON file for the first Firebase Realtime Database
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
 
-# Initialize Firebase Admin SDK for the first Realtime Database
-try:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://users-95da3-default-rtdb.europe-west1.firebasedatabase.app/',
-        'storageBucket': 'users-95da3.appspot.com'  # Replace with your actual Firebase Storage bucket
-    })
-except FileNotFoundError as e:
-    print(f"Firebase credentials file not found: {e}")
-except Exception as e:
-    print(f"Error initializing Firebase Admin SDK: {str(e)}")
+class SiteTrafficList(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            # Access the MongoDB collection
+            site_traffics_collection = db["SiteTraffics"]
+
+            # Retrieve all documents from the collection
+            all_traffic = list(site_traffics_collection.find({}, {'_id': 0}))
+
+            # Return the data as a JSON response
+            return Response({'site_traffic': all_traffic}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

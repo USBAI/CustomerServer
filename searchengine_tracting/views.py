@@ -1,36 +1,23 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import firebase_admin
-from firebase_admin import credentials, db
-import os
 import random
 import string
+from pymongo import MongoClient
+from datetime import datetime
 
-# Path to Firebase credentials JSON file for the second Firebase Realtime Database
-FIREBASE_CREDENTIALS_FOR_TASK_PATH = os.path.join(os.path.dirname(__file__), 'bolagdb-c40e2-firebase-adminsdk-y8rnh-3905b9b493.json')
+# MongoDB configuration
+MONGO_URI = "mongodb+srv://KluretUserDB:ojsgheotugfihjpeslufjpnöebkoNDEOwuflihsorufhgpdndxfouln@kluretai-users.bufni.mongodb.net/?retryWrites=true&w=majority&appName=KluretAI-Users"  # Update this with your MongoDB URI
+DB_NAME = "kluret_db"
 
-# Initialize Firebase Admin SDK for the second Realtime Database
-try:
-    cred_task = credentials.Certificate(FIREBASE_CREDENTIALS_FOR_TASK_PATH)
-    firebase_admin.initialize_app(cred_task, {
-        'databaseURL': 'https://bolagdb-c40e2-default-rtdb.europe-west1.firebasedatabase.app/',
-        'storageBucket': 'bolagdb-c40e2.appspot.com'  # Replace with the actual bucket name if necessary
-    }, name='bolagdb')
-except FileNotFoundError as e:
-    print(f"Firebase credentials file for tasks not found: {e}")
-except Exception as e:
-    print(f"Error initializing Firebase Admin SDK for tasks: {str(e)}")
+# Initialize MongoDB client
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
 
 # Function to generate a unique alphanumeric string of length between 10-20 characters
-def generate_unique_id(ref, length_range=(10, 20)):
-    while True:
-        length = random.randint(length_range[0], length_range[1])
-        random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-        
-        # Check if the random_id already exists in the database
-        if not ref.child(random_id).get():
-            return random_id
+def generate_unique_id(length_range=(10, 20)):
+    length = random.randint(length_range[0], length_range[1])
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 @csrf_exempt  # Disable CSRF for testing purposes (not recommended for production)
 def product_search_tracking(request):
@@ -47,18 +34,19 @@ def product_search_tracking(request):
             print(f"Response Status: {response_status}")
             print(f"Total Products Found: {total_products_found}")
 
-            # Get Firebase app instance
-            app = firebase_admin.get_app('bolagdb')
-            ref = db.reference('Bolag_Kluret/Searchengine_Tracking', app=app)
+            # Access the MongoDB collection
+            collection = db["ProductSearchTracking"]
 
-            # Generate a unique folder name (random alphanumeric string) between 10 and 20 characters
-            unique_id = generate_unique_id(ref)
+            # Generate a unique folder name (random alphanumeric string)
+            unique_id = generate_unique_id()
 
-            # Save the new product search data under the unique folder name
-            ref.child(unique_id).set({
+            # Save the new product search data in the MongoDB collection
+            collection.insert_one({
+                'unique_id': unique_id,
                 'product_name': product_name,
                 'response_status': response_status,
-                'total_products_found': total_products_found
+                'total_products_found': total_products_found,
+                'timestamp': datetime.utcnow()
             })
 
             # Return a success response
@@ -77,14 +65,13 @@ def product_search_tracking(request):
 
     elif request.method == 'GET':
         try:
-            # Get Firebase app instance
-            app = firebase_admin.get_app('bolagdb')
-            ref = db.reference('Bolag_Kluret/Searchengine_Tracking', app=app)
+            # Access the MongoDB collection
+            collection = db["ProductSearchTracking"]
 
-            # Fetch all data from the database
-            all_data = ref.get()
+            # Fetch all data from the MongoDB collection
+            all_data = list(collection.find({}, {'_id': 0}))  # Exclude MongoDB's default `_id` field
 
-            if all_data is None:
+            if not all_data:
                 return JsonResponse({'message': 'No data found'}, status=404)
 
             # Return the data as a JSON response

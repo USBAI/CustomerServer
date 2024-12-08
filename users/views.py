@@ -106,3 +106,23 @@ def get_user_details(request):
             return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
 
     return JsonResponse({"status": "failed", "message": "Only POST requests are allowed for fetching user details"})
+
+
+@csrf_exempt
+def get_all_users_emails(request):
+    if request.method == 'GET':
+        try:
+            # Find all users and return only the email and id fields
+            users = collection.find({}, {"_id": 1, "email": 1})
+            
+            # Prepare the user data list
+            user_list = [
+                {"id": str(user["_id"]), "email": user.get("email", None)}
+                for user in users
+            ]
+            
+            return JsonResponse({"status": "success", "users": user_list})
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e)})
+
+    return JsonResponse({"status": "failed", "message": "Only GET requests are allowed"})

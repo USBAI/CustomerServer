@@ -36,3 +36,21 @@ class UserCartView(APIView):
         except Exception as e:
             print(f"Error: {e}")  # Log the error to the server console
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class AdminCartView(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            # Query the cart collection to find all cart data
+            all_carts = list(cart_collection.find({}, {"_id": 0}))
+
+            # Check if any carts exist
+            if not all_carts:
+                return Response({'message': 'No carts found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Return all cart data
+            return Response({'carts': all_carts}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error fetching carts: {e}")  # Log the error to the server console
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

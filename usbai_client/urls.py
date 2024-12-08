@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('client/', include('endpoints.urls')),
     path('api/', include('image_host.urls')),
-    path('usbai_vision/', include('usbai_django_get.urls')),
+    path('usbai_vision/', include('usbai_django_get.urls')), 
     path('image_recognition/', include('openai_image.urls')),
     path('openai_image/', include('openai_image.urls')),
     # path('api/', include('chatbotapi.urls')), 
@@ -24,4 +24,5 @@ urlpatterns = [
     path('kluretworkflow/', include('Kluretworkflow.urls')),
     path('searchengine_tracking/', include('searchengine_tracting.urls')),
     path('auth_google/', include('auth_google.urls')),
+    path('ConnectStoreAuth/', include('ConnectStoreAuth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

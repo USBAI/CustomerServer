@@ -2,6 +2,8 @@ import os
 import django_heroku
 import dj_database_url
 from pathlib import Path
+from corsheaders.defaults import default_headers
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'searchengine_tracting',
     'auth_google',
     'chatbotapi_image_recognition',
+    'ConnectStoreAuth',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +63,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:3003",
+    "http://localhost:5175",
     "https://usbai.org",
     'https://www.kluret.se',
     "https://usbai.vercel.app",
@@ -74,6 +78,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:5175",
     "https://usbai.org",
     'https://www.kluret.se',
     "https://usbai.vercel.app",
