@@ -2,16 +2,11 @@ import requests
 import json
 
 # API URL
-url = "http://127.0.0.1:8000/ConnectStoreAuth/register/"
+url = "https://customerserver1-5d81976997ba.herokuapp.com/ConnectStoreServer/get_store_info/"
 
 # Sample data to send in the POST request
 payload = {
-    "store_name": "Test Store",
-    "email": "test@test.com",
-    "website_url": "https://test.com",
-    "store_type": "Shopify",
-    "password": "1234",
-    "confirm_password": "1234"
+    'store_id': '2e989170-56a9-454b-87f6-fee5a0a130ae',
 }
 
 # Headers for the request
