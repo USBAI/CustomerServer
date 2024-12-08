@@ -99,7 +99,14 @@ def login(request):
             # Generate a JWT token
             token = jwt.encode({'email': email}, SECRET_KEY, algorithm='HS256')
 
-            return JsonResponse({'message': 'Login successful', 'token': token})
+            # Extract the store_id from the user document
+            store_id = user.get('store_id')
+
+            return JsonResponse({
+                'message': 'Login successful',
+                'token': token,
+                'store_id': store_id
+            }, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
