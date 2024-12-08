@@ -20,21 +20,42 @@ SECRET_KEY = 'diofhefge9jocgpwgkrsdwedihffihsdfwuh84fhd8sfuh8s4e2h9sdhfwfu3h8rhe
 def register(request):
     if request.method == 'POST':
         try:
+            # Parse incoming JSON data
             data = json.loads(request.body)
-            username = data['username']
-            password = data['password']
             
-            # Check if username already exists
-            if users_collection.find_one({'username': username}):
-                return JsonResponse({'error': 'Username already exists'}, status=400)
+            store_name = data.get('store_name')  # Store Name
+            email = data.get('email')  # Email Address
+            website_url = data.get('website_url')  # Website URL
+            store_type = data.get('store_type')  # Store Type
+            password = data.get('password')  # Password
+            confirm_password = data.get('confirm_password')  # Confirm Password
 
-            # Save user to database without hashing
+            # Validate required fields
+            if not all([store_name, email, website_url, store_type, password, confirm_password]):
+                return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+            # Validate password confirmation
+            if password != confirm_password:
+                return JsonResponse({'error': 'Passwords do not match.'}, status=400)
+
+            # Check if email already exists
+            if users_collection.find_one({'email': email}):
+                return JsonResponse({'error': 'Email already exists'}, status=400)
+
+            # Check if username (store name) already exists
+            if users_collection.find_one({'store_name': store_name}):
+                return JsonResponse({'error': 'Store name already exists'}, status=400)
+
+            # Save the user to the database
             users_collection.insert_one({
-                'username': username,
-                'password': password  # Storing plain text password (not secure)
+                'store_name': store_name,
+                'email': email,
+                'website_url': website_url,
+                'store_type': store_type,
+                'password': password  # Plain text (not secure)
             })
 
-            return JsonResponse({'message': 'User registered successfully'})
+            return JsonResponse({'message': 'Store registered successfully'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
