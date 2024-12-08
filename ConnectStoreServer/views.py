@@ -1,6 +1,8 @@
 from django.http import JsonResponse
 from pymongo import MongoClient
 import json
+import random
+import string
 from django.views.decorators.csrf import csrf_exempt
 
 # MongoDB connection settings
@@ -146,6 +148,7 @@ def save_customer(request):
 
 
 
+
 @csrf_exempt
 def save_order(request):
     if request.method == 'POST':
@@ -154,24 +157,39 @@ def save_order(request):
             data = json.loads(request.body)
             
             store_id = data.get('store_id')  # The store ID to associate the order with
-            order = {
-                'order_id': data.get('order_id'),  # Order ID
-                'customer': data.get('customer'),  # Customer Name
-                'date': data.get('date'),  # Order Date
-                'items': data.get('items'),  # Items Count (e.g., "3 items")
-                'total': data.get('total'),  # Order Total (e.g., "2,499 kr")
-                'status': data.get('status'),  # Order Status (e.g., "Delivered")
-                'payment': data.get('payment')  # Payment Status (e.g., "Completed")
-            }
 
-            # Validate required fields
-            if not store_id or not order['order_id']:
-                return JsonResponse({'error': 'Store ID and Order ID are required.'}, status=400)
+            # Validate required field
+            if not store_id:
+                return JsonResponse({'error': 'Store ID is required.'}, status=400)
 
             # Check if the store exists
             store = connect_store_server_collection.find_one({'store_id': store_id})
             if not store:
                 return JsonResponse({'error': 'Store not found.'}, status=404)
+
+            # Generate a unique order ID
+            while True:
+                # Generate a random 6-character alphanumeric string
+                order_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+                
+                # Check if the generated order_id already exists in the Orders array
+                existing_order = connect_store_server_collection.find_one(
+                    {'store_id': store_id, 'Orders.order_id': order_id}
+                )
+                
+                if not existing_order:  # If no duplicate, break the loop
+                    break
+
+            # Create the order object
+            order = {
+                'order_id': order_id,
+                'customer': data.get('customer', ""),
+                'date': data.get('date', ""),
+                'items': data.get('items', ""),
+                'total': data.get('total', ""),
+                'status': data.get('status', ""),
+                'payment': data.get('payment', "")
+            }
 
             # Add the order to the Orders array
             connect_store_server_collection.update_one(
@@ -179,7 +197,7 @@ def save_order(request):
                 {'$push': {'Orders': order}}
             )
 
-            return JsonResponse({'message': 'Order added successfully.'}, status=200)
+            return JsonResponse({'message': 'Order added successfully.', 'order_id': order_id}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
