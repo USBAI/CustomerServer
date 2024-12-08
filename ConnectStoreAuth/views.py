@@ -68,20 +68,20 @@ def login(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            username = data['username']
+            email = data['email']  # Change to email
             password = data['password']
             
-            # Find the user
-            user = users_collection.find_one({'username': username})
+            # Find the user by email
+            user = users_collection.find_one({'email': email})
             if not user:
-                return JsonResponse({'error': 'Invalid username or password'}, status=400)
+                return JsonResponse({'error': 'Invalid email or password'}, status=400)
             
             # Verify the password (plain text comparison)
             if user['password'] != password:
-                return JsonResponse({'error': 'Invalid username or password'}, status=400)
+                return JsonResponse({'error': 'Invalid email or password'}, status=400)
 
             # Generate a JWT token
-            token = jwt.encode({'username': username}, SECRET_KEY, algorithm='HS256')
+            token = jwt.encode({'email': email}, SECRET_KEY, algorithm='HS256')
 
             return JsonResponse({'message': 'Login successful', 'token': token})
         except Exception as e:
