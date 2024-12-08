@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from django.views.decorators.csrf import csrf_exempt
 import json
 import jwt
+import uuid
 
 # MongoDB connection settings
 CONNECTSTORE_MONGO_URL = "mongodb+srv://ConnectStoreDB:iwrsohdgjokosdifgodJI0erjdfsigjoxigjfjb4poedfjpicedf@connectstores.vqiwf.mongodb.net/?retryWrites=true&w=majority&appName=ConnectStores"
@@ -15,6 +16,7 @@ db = client[CONNECTSTORE_DB_NAME]
 users_collection = db['users']
 
 SECRET_KEY = 'diofhefge9jocgpwgkrsdwedihffihsdfwuh84fhd8sfuh8s4e2h9sdhfwfu3h8rhe8airjfinwvrwd8hr'  # Replace with a strong secret key
+
 
 @csrf_exempt
 def register(request):
@@ -46,8 +48,12 @@ def register(request):
             if users_collection.find_one({'store_name': store_name}):
                 return JsonResponse({'error': 'Store name already exists'}, status=400)
 
-            # Save the user to the database
+            # Generate a random store_id
+            store_id = str(uuid.uuid4())
+
+            # Save the user to the ConnectStoreAuth database
             users_collection.insert_one({
+                'store_id': store_id,  # Add the generated store_id
                 'store_name': store_name,
                 'email': email,
                 'website_url': website_url,
@@ -55,7 +61,17 @@ def register(request):
                 'password': password  # Plain text (not secure)
             })
 
-            return JsonResponse({'message': 'Store registered successfully'})
+            # Save the store details to the ConnectStoreServer collection
+            connect_store_server_collection = db['ConnectStoreServer']
+            connect_store_server_collection.insert_one({
+                'store_id': store_id,
+                'store_name': store_name,
+                'email': email,
+                'website_url': website_url,
+                'store_type': store_type
+            })
+
+            return JsonResponse({'message': 'Store registered successfully', 'store_id': store_id})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 

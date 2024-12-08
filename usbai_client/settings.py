@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'auth_google',
     'chatbotapi_image_recognition',
     'ConnectStoreAuth',
+    'ConnectStoreServer',
 ]
 
 MIDDLEWARE = [
