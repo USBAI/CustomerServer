@@ -64,6 +64,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3002",
     "http://localhost:3003",
     "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:5173",
     "https://usbai.org",
     'https://www.kluret.se',
     "https://usbai.vercel.app",
@@ -79,6 +81,8 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:5173",
     "https://usbai.org",
     'https://www.kluret.se',
     "https://usbai.vercel.app",
