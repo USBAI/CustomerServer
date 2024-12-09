@@ -26,4 +26,5 @@ urlpatterns = [
     path('auth_google/', include('auth_google.urls')),
     path('ConnectStoreServer/', include('ConnectStoreServer.urls')),
     path('ConnectStoreAuth/', include('ConnectStoreAuth.urls')),
+    path('AccessApi/', include('AccessApi.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
