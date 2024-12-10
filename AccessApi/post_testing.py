@@ -12,14 +12,6 @@ accounts = [
         "plan": "Professional",
         "password": "securepassword",
         "confirm_password": "securepassword"
-    },
-    {
-        "company_name": "Techify",
-        "email": "test@techify.com",
-        "website_url": "https://techify.com",
-        "plan": "Enterprise",
-        "password": "securepassword2",
-        "confirm_password": "securepassword2"
     }
 ]
 
