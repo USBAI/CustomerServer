@@ -8,9 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 
-# Set your Stripe secret key and webhook secret
+# Set your Stripe secret key
 stripe.api_key = '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'
-stripe_webhook_secret = 'whsec_9kfdlR7UdzvDCg0mbdW2xQokbtrLaIhh'
 
 # Path to Firebase credentials JSON file
 FIREBASE_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
@@ -32,158 +31,115 @@ if not firebase_admin._apps:
     initialize_firebase()
 
 @csrf_exempt
-def create_payment_and_poll_status(request):
+def create_payment_intent(request):
     if request.method == 'POST':
         try:
             # Step 1: Parse the request data
             data = json.loads(request.body)
-            user_id = data.get('user_id')  # This is the "User-ID"
+            user_id = data.get('user_id')
             product_description = data.get('product_description')
             total_cost = float(data.get('total_cost'))
-            total_products = int(data.get('total_products'))
+            currency = data.get('currency', 'usd').lower()
 
-            # Step 2: Create a product in Stripe
-            product = stripe.Product.create(
-                name=f"Kluret User: {user_id}",
-                description=f"Products: {product_description}",
-            )
-
-            # Step 3: Create a price for the product
-            price = stripe.Price.create(
-                product=product.id,
-                unit_amount=int(total_cost * 100),  # Convert SEK to cents
-                currency='sek',
-            )
-
-            # Step 4: Create a payment link
-            payment_link = stripe.PaymentLink.create(
-                line_items=[{
-                    'price': price.id,
-                    'quantity': total_products,  # Use total_products as quantity
-                }],
-                shipping_address_collection={
-                    'allowed_countries': ['SE']  # Only allow shipping within Sweden
-                },
+            # Step 2: Create a PaymentIntent in Stripe
+            payment_intent = stripe.PaymentIntent.create(
+                amount=int(total_cost * 100),  # Convert amount to smallest currency unit
+                currency=currency,
                 metadata={
                     'user_id': user_id,
                     'product_description': product_description
                 }
             )
 
-            # Step 5: Return the payment link URL to the frontend immediately
+            # Step 3: Return the client secret to the frontend for confirmation
             response_data = {
                 "status": "success",
-                "payment_link": payment_link.url,
-                "payment_link_id": payment_link.id
+                "client_secret": payment_intent.client_secret,
+                "payment_intent_id": payment_intent.id
             }
-            print(f"Payment link created: {payment_link.url}")
-
-            # Start background thread to poll for payment status
-            thread = threading.Thread(target=poll_payment_status, args=(payment_link.id, user_id))
-            thread.start()
+            print(f"PaymentIntent created: {payment_intent.id}")
 
             return JsonResponse(response_data)
 
         except stripe.error.StripeError as e:
-            # Handle Stripe errors
             print(f"Stripe error: {e}")
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
         except Exception as e:
-            # Handle other general errors
             print(f"Error: {e}")
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
-    
+
     else:
         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
-
-def poll_payment_status(payment_link_id, user_id):
-    retries = 1000
-    while retries > 0:
-        retries -= 1
-
+@csrf_exempt
+def confirm_payment(request):
+    if request.method == 'POST':
         try:
-            # Fetch the sessions tied to the payment link
-            sessions = stripe.checkout.Session.list(payment_link=payment_link_id)
+            # Parse the request data
+            data = json.loads(request.body)
+            payment_intent_id = data.get('payment_intent_id')
+            user_id = data.get('user_id')
 
-            if sessions and sessions['data']:
-                session = sessions['data'][0]
+            # Retrieve the PaymentIntent from Stripe
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
-                # Check if the payment status is 'paid'
-                if session['payment_status'] == 'paid':
-                    # Disable the payment link after successful payment
-                    stripe.PaymentLink.modify(payment_link_id, active=False)
-                    print(f"Payment for link {payment_link_id} has been paid and deactivated.")
-
-                    # Fetch user name from Kluret_Users using User-ID
-                    user_name = fetch_user_name_by_user_id(user_id)
-                    if user_name:
-                        # Move paid products from user's cart to "paid_products"
-                        update_firebase_after_payment(user_name, payment_link_id)
-                    else:
-                        print(f"User with ID {user_id} not found in Kluret_Users.")
-                    break
+            if payment_intent.status == 'succeeded':
+                # Fetch user name from Kluret_Users using User-ID
+                user_name = fetch_user_name_by_user_id(user_id)
+                if user_name:
+                    # Move paid products from user's cart to "paid_products"
+                    update_firebase_after_payment(user_name, payment_intent_id)
                 else:
-                    print(f"Payment link {payment_link_id} is not yet paid. Status: {session['payment_status']}")
+                    print(f"User with ID {user_id} not found in Kluret_Users.")
+
+                return JsonResponse({"status": "success", "message": "Payment confirmed and processed."})
             else:
-                print(f"No active session found for the payment link {payment_link_id}.")
-        
+                return JsonResponse({"status": "error", "message": "Payment not successful."})
+
+        except stripe.error.StripeError as e:
+            print(f"Stripe error: {e}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
         except Exception as e:
-            print(f"Error while polling payment status: {e}")
+            print(f"Error: {e}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
-        # Wait for 1 second before checking again
-        time.sleep(1)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
-    if retries == 0:
-        print(f"Payment link {payment_link_id} has not been paid after 1000 retries.")
+# Helper functions
 
-
-# Updated fetch_user_name_by_user_id function
 def fetch_user_name_by_user_id(user_id):
-    """
-    Fetch the username (folder) by their User-ID from Kluret_Users.
-    """
     kluret_users_ref = db.reference('All_Users/Kluret_Users')
     kluret_users = kluret_users_ref.get()
 
     if kluret_users:
         for user_name, user_data in kluret_users.items():
-            # Check if 'User-ID' exists in the folder and matches the provided user_id
             if isinstance(user_data, dict) and 'User-ID' in user_data:
                 if user_data['User-ID'] == user_id:
                     print(f"Found matching user: {user_name} with User-ID: {user_id}")
-                    return user_name  # Return the folder name (e.g., 'bolagatkluredotse')
-            else:
-                print(f"No 'User-ID' found in folder {user_name}")
+                    return user_name
 
     print(f"No matching user found for User-ID: {user_id}")
     return None
 
-
-def update_firebase_after_payment(user_name, payment_link_id):
-    # Fetch the user's cart from Firebase using the username
+def update_firebase_after_payment(user_name, payment_intent_id):
     ref = db.reference(f'All_Users/Kluret_Users/{user_name}/MyCart')
     cart_items = ref.get()
 
     if cart_items:
-        # Debug: Print cart items before proceeding
         print(f"Cart items for user {user_name}: {cart_items}")
-
-        # Create or get the "paid_products" node for the user
         paid_products_ref = db.reference(f'All_Users/Kluret_Users/{user_name}/paid_products')
         paid_products = paid_products_ref.get()
 
         if not paid_products:
             paid_products = []
 
-        # Move all cart items to "paid_products"
         for key, item in cart_items.items():
             paid_products_ref.push(item)
 
-        # Clear the user's cart after moving the items
         ref.delete()
         print(f"All items in the cart for user {user_name} have been moved to 'paid_products'.")
-
     else:
         print(f"No cart items found for user {user_name}.")

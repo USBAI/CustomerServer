@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import create_payment_and_poll_status
+from .views import create_payment_intent, confirm_payment
 
 urlpatterns = [
-    # No need for 'as_view()' here because it's a function-based view
-    path('collect-data/', create_payment_and_poll_status, name='collect-data'),
+    path('create-payment-intent/', create_payment_intent, name='create-payment-intent'),
+    path('confirm-payment/', confirm_payment, name='confirm-payment'),
 ]
