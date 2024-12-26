@@ -27,4 +27,6 @@ urlpatterns = [
     path('ConnectStoreServer/', include('ConnectStoreServer.urls')),
     path('ConnectStoreAuth/', include('ConnectStoreAuth.urls')),
     path('AccessApi/', include('AccessApi.urls')),
+    path('klarna_pay/', include('klarna_pay.urls')),
+    path('AddOrder_Confirm/', include('AddOrder_Confirm.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

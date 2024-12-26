@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'ConnectStoreAuth',
     'ConnectStoreServer',
     'AccessApi',
+    'klarna_pay',
+    'AddOrder_Confirm',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +83,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://usbai-client.onrender.com",
     "https://clientengine1-ed4a4651f3d7.herokuapp.com",
     "https://usbaiclient-bc9c07737d7c.herokuapp.com",
+    "https://www.kluret.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -99,6 +102,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://usbaiclient-8c59f2a693e9.herokuapp.com",
     "https://webnode-9662dc9a689b.herokuapp.com",
     "https://usbaiclient-bc9c07737d7c.herokuapp.com",
+    "https://www.kluret.com",
     "https://usbai-client.onrender.com",
     "https://clientengine1-ed4a4651f3d7.herokuapp.com",
 ]
