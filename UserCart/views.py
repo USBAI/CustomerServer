@@ -3,11 +3,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from pymongo import MongoClient
 import os
+import datetime
+import stripe
 
 # MongoDB connection settings
 MONGO_URI = "mongodb+srv://KluretUserDB:ojsgheotugfihjpeslufjpnöebkoNDEOwuflihsorufhgpdndxfouln@kluretai-users.bufni.mongodb.net/?retryWrites=true&w=majority&appName=KluretAI-Users"  # Update this with your MongoDB URI
 DB_NAME = "kluret_db"
 CART_COLLECTION_NAME = "cart"
+ORDER_COLLECTIONS = "orders"
+# Set your Stripe secret key
+stripe.api_key = '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'
+
 
 # Initialize MongoDB client
 client = MongoClient(MONGO_URI)
@@ -54,3 +60,4 @@ class AdminCartView(APIView):
         except Exception as e:
             print(f"Error fetching carts: {e}")  # Log the error to the server console
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

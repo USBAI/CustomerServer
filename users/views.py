@@ -126,3 +126,111 @@ def get_all_users_emails(request):
             return JsonResponse({"status": "failed", "message": str(e)})
 
     return JsonResponse({"status": "failed", "message": "Only GET requests are allowed"})
+
+
+
+@csrf_exempt
+def get_shipping_info(request):
+    if request.method == 'GET':
+        try:
+            user_id = request.GET.get('user_id')
+
+            if not user_id:
+                return JsonResponse({"status": "failed", "message": "User ID is required"})
+
+            # Find the user's shipping information by User-ID in MongoDB
+            user = collection.find_one({"User-ID": user_id}, {"shipping_info": 1, "_id": 0})
+
+            if user and "shipping_info" in user:
+                return JsonResponse({"status": "success", "shipping_info": user["shipping_info"]})
+
+            return JsonResponse({"status": "failed", "message": "Shipping information not found for the user"})
+
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e)})
+
+    return JsonResponse({"status": "failed", "message": "Only GET requests are allowed"})
+
+@csrf_exempt
+def post_shipping_info(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if not user_id:
+                return JsonResponse({"status": "failed", "message": "User ID is required"})
+
+            shipping_info = {
+                "address": data.get('address'),
+                "country": data.get('country'),
+                "zip_code": data.get('zip_code'),
+                "phone_number": data.get('phone_number'),
+                "email": data.get('email'),
+                "full_name": data.get('full_name'),
+                "state": data.get('state'),
+                "city": data.get('city'),
+                "additional_instructions": data.get('additional_instructions') or ""
+            }
+            print(f"shipping_info: {shipping_info}")
+
+            required_fields = ["address", "country", "zip_code", "phone_number", "email", "full_name", "state", "city"]
+
+            if not all(shipping_info[field] for field in required_fields):
+                return JsonResponse({"status": "failed", "message": "All required shipping information fields must be provided"})
+
+            # Update the user's shipping information in MongoDB
+            result = collection.update_one(
+                {"User-ID": user_id},
+                {"$set": {"shipping_info": shipping_info}}
+            )
+
+            if result.matched_count > 0:
+                return JsonResponse({"status": "success", "message": "Shipping information updated successfully"})
+
+            return JsonResponse({"status": "failed", "message": "User not found"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e)})
+
+    return JsonResponse({"status": "failed", "message": "Only POST requests are allowed"})
+
+
+
+@csrf_exempt
+def update_shipping_info(request):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if not user_id:
+                return JsonResponse({"status": "failed", "message": "User ID is required"})
+
+            updated_info = {}
+            for field in ["address", "country", "zip_code", "phone_number", "email", "full_name", "state", "city", "additional_instructions"]:
+                if field in data:
+                    updated_info[field] = data[field]
+
+            if not updated_info:
+                return JsonResponse({"status": "failed", "message": "No fields to update"})
+
+            # Update the shipping information in MongoDB
+            result = collection.update_one(
+                {"User-ID": user_id},
+                {"$set": {"shipping_info": updated_info}}
+            )
+
+            if result.matched_count > 0:
+                return JsonResponse({"status": "success", "message": "Shipping information updated successfully"})
+
+            return JsonResponse({"status": "failed", "message": "User not found"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "failed", "message": "Invalid JSON format"})
+        except Exception as e:
+            return JsonResponse({"status": "failed", "message": str(e)})
+
+    return JsonResponse({"status": "failed", "message": "Only PUT requests are allowed"})
