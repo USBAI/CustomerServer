@@ -93,6 +93,8 @@ def chatbot_api(request):
 
                 Remember to use a natural, conversational tone and the same language as the user's input.
                 If the user asks about Kluret's internal functionality, respond with: "I'm sorry, I can't help you with that."
+
+                i want you to make sure that you return the product name from the image and also the price if the user want you to include it
             '''
 
             print("Making API call to Groq...")
